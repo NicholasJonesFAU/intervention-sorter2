@@ -97,6 +97,21 @@ class InterventionSorterApp(tk.Tk):
         self.configure(bg=theme.NAVY)
         self.resizable(True, True)
 
+        # Window icon — titlebar + taskbar, works in dev and as frozen exe
+        try:
+            import sys as _sys
+            if getattr(_sys, 'frozen', False):
+                _icon_path = Path(_sys.executable).parent / 'assets' / 'icon.ico'
+            else:
+                _icon_path = Path(__file__).parent / 'assets' / 'icon.ico'
+            if _icon_path.exists():
+                self.iconbitmap(str(_icon_path))
+                # PhotoImage sets the taskbar icon (iconbitmap alone doesn't)
+                _img = tk.PhotoImage(file=str(_icon_path))
+                self.iconphoto(True, _img)
+        except Exception:
+            pass
+
         self._processing = False
         # Load Inter font
         theme.FONT_FAMILY = theme.load_inter_fonts()

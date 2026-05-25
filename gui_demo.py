@@ -15,7 +15,11 @@ def load_progress_demo_files(app) -> None:
             group_control.txt
             group_files/
     """
-    repo_root = Path(__file__).resolve().parent
+    import sys
+    if getattr(sys, 'frozen', False):
+        repo_root = Path(sys.executable).parent
+    else:
+        repo_root = Path(__file__).resolve().parent
     sample_dir = repo_root / "sample_data"
     group_dir = sample_dir / "group_files"
     output_dir = sample_dir / "demo_output"
