@@ -17,7 +17,8 @@ def load_progress_demo_files(app) -> None:
     """
     import sys
     if getattr(sys, 'frozen', False):
-        repo_root = Path(sys.executable).parent
+        # --onefile: bundled assets are in sys._MEIPASS (temp extraction dir)
+        repo_root = Path(sys._MEIPASS)
     else:
         repo_root = Path(__file__).resolve().parent
     sample_dir = repo_root / "sample_data"

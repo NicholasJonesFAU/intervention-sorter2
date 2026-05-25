@@ -105,10 +105,14 @@ class InterventionSorterApp(tk.Tk):
             else:
                 _icon_path = Path(__file__).parent / 'assets' / 'icon.ico'
             if _icon_path.exists():
-                self.iconbitmap(str(_icon_path))
-                # PhotoImage sets the taskbar icon (iconbitmap alone doesn't)
-                _img = tk.PhotoImage(file=str(_icon_path))
-                self.iconphoto(True, _img)
+                # iconbitmap handles the titlebar; PIL + iconphoto handles the taskbar
+                # (tk.PhotoImage can't read .ico natively)
+                self.iconbitmap(default=str(_icon_path))
+                from PIL import Image, ImageTk
+                _pil_img = Image.open(str(_icon_path))
+                _tk_img = ImageTk.PhotoImage(_pil_img)
+                self.iconphoto(True, _tk_img)
+                self._icon_ref = _tk_img  # keep reference so GC doesn't destroy it
         except Exception:
             pass
 
