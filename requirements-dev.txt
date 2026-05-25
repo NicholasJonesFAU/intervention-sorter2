@@ -1,0 +1,16 @@
+# Development / build dependencies
+# Install with: pip install -r requirements-dev.txt
+
+# Runtime dependencies (also in requirements.txt)
+pandas>=1.5.0
+openpyxl>=3.0.10
+matplotlib>=3.5.0
+
+# Build the .exe
+pyinstaller>=6.0.0
+
+# Code formatting
+black>=24.0.0
+
+# Testing
+pytest>=7.0.0

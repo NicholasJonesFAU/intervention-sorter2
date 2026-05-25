@@ -7,13 +7,22 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Tuple
 from pathlib import Path
 
+import sys
+
 APP_VERSION = "2.0.0"
 APP_NAME = "Academic Intervention Sorter"
 
 # ---------------------------------------------------------------------------
 # Directory paths
+# Handles both normal Python execution and PyInstaller frozen bundles.
 # ---------------------------------------------------------------------------
-BASE_DIR = Path(__file__).resolve().parent.parent
+_here = Path(__file__).resolve()
+
+if getattr(sys, "frozen", False):
+    # Running as a PyInstaller .exe — put all data files next to the executable
+    BASE_DIR = Path(sys.executable).parent
+else:
+    BASE_DIR = _here.parent.parent
 OUTPUT_DIR = BASE_DIR / "output"
 LOGS_DIR = BASE_DIR / "logs"
 

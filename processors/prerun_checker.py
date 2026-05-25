@@ -161,6 +161,90 @@ class PreRunChecker:
 
         return results
 
+    def check_semester_groups(
+        self,
+        groups: list,
+        progress_ids: set | None = None,
+    ) -> list:
+        """
+        Validate semester-configured group definitions [{name, file_path}].
+        Mirror of check_group_files() but accepts full paths instead of a
+        control file + directory.
+        """
+        results = []
+
+        if not groups:
+            results.append(
+                CheckResult("warning", "No groups configured for this semester.")
+            )
+            return results
+
+        results.append(
+            CheckResult("info", f"Semester groups: {len(groups)} groups configured")
+        )
+
+        total_group_ids: set = set()
+        for g in groups:
+            name = g.get("name", "?")
+            file_path_str = g.get("file_path", "")
+            file_path = Path(file_path_str) if file_path_str else None
+
+            if not file_path or not file_path.exists():
+                results.append(
+                    CheckResult(
+                        "warning",
+                        f"Group '{name}': file not found — "
+                        f"{'(no file selected)' if not file_path_str else file_path_str}",
+                    )
+                )
+                continue
+
+            try:
+                df = pd.read_excel(
+                    file_path, dtype=str, keep_default_na=False,
+                    engine="openpyxl", header=None,
+                )
+                ids = set(
+                    normalize_student_id_series(df.iloc[:, 0])
+                    .replace("", pd.NA)
+                    .dropna()
+                )
+                ids = {
+                    i for i in ids
+                    if i.lower() not in {
+                        "student id", "studentid", "id",
+                        "z number", "znumber", "nan",
+                    }
+                }
+                total_group_ids |= ids
+
+                if not ids:
+                    results.append(
+                        CheckResult(
+                            "warning",
+                            f"Group '{name}': file loaded but no valid IDs found.",
+                        )
+                    )
+                elif progress_ids:
+                    overlap = ids & progress_ids
+                    results.append(
+                        CheckResult(
+                            "info",
+                            f"Group '{name}': {len(ids):,} IDs loaded, "
+                            f"{len(overlap):,} match at-risk students",
+                        )
+                    )
+                else:
+                    results.append(
+                        CheckResult("info", f"Group '{name}': {len(ids):,} IDs loaded")
+                    )
+            except Exception as exc:
+                results.append(
+                    CheckResult("warning", f"Group '{name}': could not read file: {exc}")
+                )
+
+        return results
+
     def check_group_files(self, control_path: Path,
                           group_dir: Path,
                           progress_ids: Optional[set] = None) -> List[CheckResult]:

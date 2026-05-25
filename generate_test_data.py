@@ -1,22 +1,28 @@
 """
-generate_test_data.py — Generates sample input files for testing the pipeline.
+generate_test_data.py — Generates synthetic input files for testing the pipeline.
 
 Creates:
-  - test_data/progress_report.xlsx
-  - test_data/contact_report.xlsx
-  - test_data/groups/athletes.xlsx
-  - test_data/groups/probation.xlsx
-  - test_data/groups/honors.xlsx
-  - test_data/groups/international.xlsx
-  - test_data/groups/control.txt
+  test_data/
+      progress_report.xlsx
+      contact_report.xlsx
+      groups/
+          athletes.xlsx
+          probation.xlsx
+          honors.xlsx
+          international.xlsx
+      control.txt
+
+Column names match the defaults in utils/config.py.
+Run:  python generate_test_data.py
 """
 
 import sys
+import random
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 import pandas as pd
-import random
 
 SEED = 42
 random.seed(SEED)
@@ -27,20 +33,24 @@ TEST_DIR.mkdir(exist_ok=True)
 GROUP_DIR.mkdir(exist_ok=True)
 
 # ---------------------------------------------------------------------------
-# Student IDs
+# Student pool
 # ---------------------------------------------------------------------------
 NUM_STUDENTS = 80
 student_ids = [f"Z{10000000 + i:08d}" for i in range(1, NUM_STUDENTS + 1)]
 
-FIRST_NAMES = ["Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley", "Jamie",
-               "Avery", "Cameron", "Blake", "Drew", "Quinn", "Reese", "Skylar",
-               "Peyton", "Kendall", "Hayden", "Logan", "Dakota", "Emery",
-               "Maria", "Carlos", "Wei", "Priya", "Dimitri", "Fatima", "Kwame"]
+FIRST_NAMES = [
+    "Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley", "Jamie",
+    "Avery", "Cameron", "Blake", "Drew", "Quinn", "Reese", "Skylar",
+    "Peyton", "Kendall", "Hayden", "Logan", "Dakota", "Emery",
+    "Maria", "Carlos", "Wei", "Priya", "Dimitri", "Fatima", "Kwame",
+]
 
-LAST_NAMES = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia",
-              "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez",
-              "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore",
-              "Jackson", "Martin", "Lee", "Perez", "Thompson", "White"]
+LAST_NAMES = [
+    "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia",
+    "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez",
+    "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore",
+    "Jackson", "Martin", "Lee", "Perez", "Thompson", "White",
+]
 
 student_names = {
     sid: f"{random.choice(LAST_NAMES)}, {random.choice(FIRST_NAMES)}"
@@ -73,57 +83,62 @@ COMMENTS = [
     "",
 ]
 
-
-def make_at_risk_value(idx: int) -> str:
-    """Vary At-Risk values to test normalization."""
-    options = ["TRUE", "True", "true", "YES", "Yes", "Y", "1"]
-    return options[idx % len(options)]
+# Vary At-Risk flag values to exercise normalization
+AT_RISK_VALUES = ["TRUE", "True", "true", "YES", "Yes", "Y", "1"]
 
 
 # ---------------------------------------------------------------------------
 # Progress Report
+# Column names match PROGRESS_REPORT_COLUMN_MAP in utils/config.py
 # ---------------------------------------------------------------------------
 rows = []
 for sid in student_ids:
     n_courses = random.choices([1, 2, 3, 4], weights=[30, 35, 25, 10])[0]
     courses = random.sample(COURSES, n_courses)
-    for i, course in enumerate(courses):
-        rows.append({
-            "Student Name": student_names[sid],
-            "Student id": sid if random.random() > 0.05 else f"{sid}.0",
-            "Full Course Name": course,
-            "Is at Risk": make_at_risk_value(len(rows)),
-            "Alert Reasons": random.choice(ALERT_REASONS),
-            "Letter Grade": random.choice(GRADES),
-            "Number of Absences": random.randint(0, 12),
-            "Comment": random.choice(COMMENTS),
-        })
+    for course in courses:
+        rows.append(
+            {
+                "Student Name": student_names[sid],
+                # Occasionally add .0 suffix to test ID normalization
+                "Student ID": sid if random.random() > 0.05 else f"{sid}.0",
+                "Course Name": course,
+                "Marked At-Risk": AT_RISK_VALUES[len(rows) % len(AT_RISK_VALUES)],
+                "Alert Reasons": random.choice(ALERT_REASONS),
+                "Progress Report Grade": random.choice(GRADES),
+                "Progress Report Number of Absences": random.randint(0, 12),
+                "Progress Report Comment": random.choice(COMMENTS),
+            }
+        )
 
-# Add some non-at-risk rows
+# Non-at-risk rows — should be filtered out by the pipeline
 for i in range(20):
     sid = random.choice(student_ids[:20])
-    rows.append({
-        "Student Name": student_names[sid],
-        "Student id": sid,
-        "Full Course Name": random.choice(COURSES),
-        "Is at Risk": "FALSE",
-        "Alert Reasons": "",
-        "Letter Grade": "B",
-        "Number of Absences": 1,
-        "Comment": "",
-    })
+    rows.append(
+        {
+            "Student Name": student_names[sid],
+            "Student ID": sid,
+            "Course Name": random.choice(COURSES),
+            "Marked At-Risk": "FALSE",
+            "Alert Reasons": "",
+            "Progress Report Grade": "B",
+            "Progress Report Number of Absences": 1,
+            "Progress Report Comment": "",
+        }
+    )
 
-# Add duplicate course row
-rows.append({
-    "Student Name": student_names[student_ids[0]],
-    "Student id": student_ids[0],
-    "Full Course Name": "MAC1105",
-    "Is at Risk": "TRUE",
-    "Alert Reasons": "Duplicate row test",
-    "Letter Grade": "D",
-    "Number of Absences": 3,
-    "Comment": "",
-})
+# Duplicate row — should be deduplicated by the pipeline
+rows.append(
+    {
+        "Student Name": student_names[student_ids[0]],
+        "Student ID": student_ids[0],
+        "Course Name": "MAC1105",
+        "Marked At-Risk": "TRUE",
+        "Alert Reasons": "Duplicate row test",
+        "Progress Report Grade": "D",
+        "Progress Report Number of Absences": 3,
+        "Progress Report Comment": "",
+    }
+)
 
 progress_df = pd.DataFrame(rows)
 progress_path = TEST_DIR / "progress_report.xlsx"
@@ -133,15 +148,30 @@ print(f"✓ Progress report: {len(progress_df)} rows → {progress_path}")
 
 # ---------------------------------------------------------------------------
 # Contact Report
+# Column names match CONTACT_REPORT_COLUMN_MAP in utils/config.py
 # ---------------------------------------------------------------------------
 contact_rows = []
 for sid in student_ids:
-    has_contact = random.random() > 0.1   # 10% missing
-    contact_rows.append({
-        "Student ID": sid,
-        "Phone Number": f"(954) {random.randint(200,999)}-{random.randint(1000,9999)}" if has_contact else "",
-        "Email": f"{sid.lower()}@student.fau.edu" if has_contact else "",
-    })
+    has_contact = random.random() > 0.1  # ~10% missing contact
+    contact_rows.append(
+        {
+            "ZNUMBER": sid,
+            "CELLULAR_PHONE": (
+                f"(954) {random.randint(200, 999)}-{random.randint(1000, 9999)}"
+                if has_contact
+                else ""
+            ),
+            "LOCAL_PHONE": "",
+            "PERMANENT_PHONE": (
+                f"(561) {random.randint(200, 999)}-{random.randint(1000, 9999)}"
+                if has_contact and random.random() > 0.5
+                else ""
+            ),
+            "FAU_EMAIL_ADDRESS": (
+                f"{sid.lower()}@student.fau.edu" if has_contact else ""
+            ),
+        }
+    )
 
 contact_df = pd.DataFrame(contact_rows)
 contact_path = TEST_DIR / "contact_report.xlsx"
@@ -151,18 +181,22 @@ print(f"✓ Contact report: {len(contact_df)} rows → {contact_path}")
 
 # ---------------------------------------------------------------------------
 # Group files
+# Intentional 2-student overlap between athletes and probation to verify
+# that first-match-wins logic works correctly.
 # ---------------------------------------------------------------------------
 shuffled = student_ids[:]
 random.shuffle(shuffled)
 
-athletes     = shuffled[:12]
-probation    = shuffled[10:22]   # Overlap: 2 students in both (first-match wins)
-honors       = shuffled[20:30]
+athletes = shuffled[:12]
+probation = shuffled[10:22]  # overlaps athletes by 2
+honors = shuffled[20:30]
 international = shuffled[28:38]
 
-def write_group_file(path: Path, ids: list):
+
+def write_group_file(path: Path, ids: list) -> None:
     pd.DataFrame({"Student ID": ids}).to_excel(path, index=False)
     print(f"✓ Group file: {len(ids)} IDs → {path}")
+
 
 write_group_file(GROUP_DIR / "athletes.xlsx", athletes)
 write_group_file(GROUP_DIR / "probation.xlsx", probation)
@@ -183,5 +217,5 @@ control_path = TEST_DIR / "control.txt"
 control_path.write_text(control_content, encoding="utf-8")
 print(f"✓ Control file → {control_path}")
 
-print("\nAll test data generated successfully.")
-print(f"Test data directory: {TEST_DIR}")
+print("\n✅  All test data generated successfully.")
+print(f"   Test data directory: {TEST_DIR}")

@@ -19,7 +19,12 @@ def on_run_progress(app):
     if inputs is None:
         return
 
-    if app._control_picker.path and app._group_dir_picker.path:
+    # Show group selection dialog when semester groups are configured OR
+    # when a control file is selected — whichever is the active source
+    semester_groups = SemesterManager().get_groups()
+    has_control_file = bool(app._control_picker.path and app._group_dir_picker.path)
+
+    if semester_groups or has_control_file:
         checkpoint = (
             app._checkpoint_type_var.get()
             if hasattr(app, "_checkpoint_type_var")
@@ -48,13 +53,22 @@ def on_validate_progress(app):
 
 def on_prerun_check_progress(app):
     """Run pre-flight data quality checks without a full pipeline run."""
-    paths = {
+    from processors.semester_manager import SemesterManager
+
+    semester_groups = SemesterManager().get_groups()
+    using_semester_groups = bool(semester_groups)
+
+    # Progress report and contact report are always required
+    always_required = {
         "Progress Report": app._progress_picker.path,
         "Contact Report": app._contact_picker.path,
-        "Group Control": app._control_picker.path,
-        "Group Folder": app._group_dir_picker.path,
     }
-    missing = [k for k, v in paths.items() if not v]
+    # Control file + group folder only required when no semester groups configured
+    if not using_semester_groups:
+        always_required["Group Control File"] = app._control_picker.path
+        always_required["Group Files Folder"] = app._group_dir_picker.path
+
+    missing = [k for k, v in always_required.items() if not v]
     if missing:
         messagebox.showerror(
             "Missing Files",
@@ -72,7 +86,9 @@ def on_prerun_check_progress(app):
         progress_ids = None
 
         app.after(0, app._log, "Checking progress report...", "step")
-        pr_results = checker.check_progress_report(Path(paths["Progress Report"]))
+        pr_results = checker.check_progress_report(
+            Path(always_required["Progress Report"])
+        )
         all_results.extend(pr_results)
 
         try:
@@ -81,14 +97,12 @@ def on_prerun_check_progress(app):
             import pandas as pd
 
             col = get_settings().progress_report_map
-            if paths["Progress Report"].endswith(".csv"):
-                df = pd.read_csv(paths["Progress Report"], dtype=str, keep_default_na=False)
+            pr_path = always_required["Progress Report"]
+            if pr_path.endswith(".csv"):
+                df = pd.read_csv(pr_path, dtype=str, keep_default_na=False)
             else:
                 df = pd.read_excel(
-                    paths["Progress Report"],
-                    dtype=str,
-                    keep_default_na=False,
-                    engine="openpyxl",
+                    pr_path, dtype=str, keep_default_na=False, engine="openpyxl"
                 )
             df.columns = [str(c).strip() for c in df.columns]
             if col["at_risk"] in df.columns and col["student_id"] in df.columns:
@@ -102,15 +116,22 @@ def on_prerun_check_progress(app):
             pass
 
         app.after(0, app._log, "Checking contact report...", "step")
-        cr_results = checker.check_contact_report(Path(paths["Contact Report"]), progress_ids)
+        cr_results = checker.check_contact_report(
+            Path(always_required["Contact Report"]), progress_ids
+        )
         all_results.extend(cr_results)
 
-        app.after(0, app._log, "Checking group files...", "step")
-        gf_results = checker.check_group_files(
-            Path(paths["Group Control"]),
-            Path(paths["Group Folder"]),
-            progress_ids,
-        )
+        # Group check: semester groups take precedence over control file
+        if using_semester_groups:
+            app.after(0, app._log, "Checking semester group files...", "step")
+            gf_results = checker.check_semester_groups(semester_groups, progress_ids)
+        else:
+            app.after(0, app._log, "Checking group files...", "step")
+            gf_results = checker.check_group_files(
+                Path(always_required["Group Control File"]),
+                Path(always_required["Group Files Folder"]),
+                progress_ids,
+            )
         all_results.extend(gf_results)
 
         app.after(0, app._show_precheck_results, all_results)
@@ -191,15 +212,11 @@ def collect_progress_inputs(app):
         return None
 
     season = app._campaign_season_var.get().strip() if hasattr(app, "_campaign_season_var") else ""
-<<<<<<< HEAD
     checkpoint = (
         app._checkpoint_type_var.get()
         if hasattr(app, "_checkpoint_type_var")
         else "Progress Report"
     )
-=======
-    checkpoint = app._checkpoint_type_var.get() if hasattr(app, "_checkpoint_type_var") else "Progress Report"
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
     control_file = Path(app._control_picker.path) if app._control_picker.path else Path(".")
     group_dir = Path(app._group_dir_picker.path) if app._group_dir_picker.path else Path(".")
@@ -282,15 +299,11 @@ def on_progress_complete(app, result):
                 app._log(f"   {w}", "warning")
         messagebox.showerror(
             "Processing Failed" if not result.validation_only else "Validation Issues",
-<<<<<<< HEAD
             (
                 "❌ Processing failed:"
                 if not result.validation_only
                 else "⚠️ Validation issues found:"
             )
-=======
-            ("❌ Processing failed:" if not result.validation_only else "⚠️ Validation issues found:")
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
             + "\n\n"
             + result.message
             + ("\n\nDetails:\n" + "\n".join(result.errors[:5]) if result.errors else ""),
