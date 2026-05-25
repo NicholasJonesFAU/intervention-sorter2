@@ -242,8 +242,8 @@ class PipelineController:
             source_files = {
                 "Progress Report": inputs.progress_report.name,
                 "Contact Report": inputs.contact_report.name,
-                "Control File": inputs.control_file.name,
-                "Group Files Directory": str(inputs.group_dir),
+                "Control File": inputs.control_file.name if inputs.control_file else "Semester Groups",
+                "Group Files Directory": str(inputs.group_dir) if inputs.group_dir else "Semester Groups",
             }
 
             exporter = Exporter()
@@ -358,11 +358,18 @@ class PipelineController:
             # Try loading group matcher
             try:
                 matcher = GroupMatcher(self._qa_log)
-                matcher.load_control_file(
-                    inputs.control_file,
-                    inputs.group_dir,
-                    skip_groups=inputs.skip_groups,
-                )
+                if inputs.semester_groups:
+                    matcher.load_from_semester_groups(
+                        inputs.semester_groups,
+                        skip_groups=inputs.skip_groups,
+                    )
+                else:
+                    matcher.load_control_file(
+                        inputs.control_file,
+                        inputs.group_dir,
+                        skip_groups=inputs.skip_groups,
+                    )
+
                 for g in matcher.group_definitions:
                     preview_info.append(
                         f"Group '{g.tab_name}': {len(g.student_ids):,} IDs loaded"
@@ -502,14 +509,21 @@ class PipelineController:
             )
 
     def _resolve_output_path(self, output_dir: Path) -> Path:
+        """
+        Build the output workbook path.
+
+        If a season is selected, use the app's semester output folder.
+        Otherwise, respect the output_dir passed in by the GUI/user.
+        """
         from utils.config import get_semester_output_dir
 
         season = getattr(self, "_current_season", "")
-        semester_dir = get_semester_output_dir(season)
+        target_dir = get_semester_output_dir(season) if season else Path(output_dir)
+
         timestamp = datetime.now().strftime(LOG_DATE_FORMAT)
         filename = OUTPUT_FILENAME_PATTERN.format(timestamp=timestamp)
-        semester_dir.mkdir(parents=True, exist_ok=True)
-        return semester_dir / filename
+        target_dir.mkdir(parents=True, exist_ok=True)
+        return target_dir / filename
 
     def _update(self, message: str) -> None:
         logger.info("Pipeline: %s", message)

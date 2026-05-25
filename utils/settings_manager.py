@@ -14,7 +14,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 
 from utils.config import (
     PROGRESS_REPORT_COLUMN_MAP as _DEFAULT_PROGRESS,
@@ -56,6 +56,8 @@ class AppSettings:
         data = {
             "progress_report_map": self.progress_report_map,
             "contact_report_map": self.contact_report_map,
+            "midterm_map": self.midterm_map,
+            "faculty_map": self.faculty_map,
         }
         try:
             SETTINGS_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
