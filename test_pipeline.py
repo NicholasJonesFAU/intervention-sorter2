@@ -107,17 +107,17 @@ def test_full_run():
 def test_semester_groups():
     groups_dir = TEST_DIR / "groups"
     semester_groups = [
-        {"name": "Athletes",      "file_path": str(groups_dir / "athletes.xlsx")},
-        {"name": "Probation",     "file_path": str(groups_dir / "probation.xlsx")},
-        {"name": "Honors",        "file_path": str(groups_dir / "honors.xlsx")},
+        {"name": "Athletes", "file_path": str(groups_dir / "athletes.xlsx")},
+        {"name": "Probation", "file_path": str(groups_dir / "probation.xlsx")},
+        {"name": "Honors", "file_path": str(groups_dir / "honors.xlsx")},
         {"name": "International", "file_path": str(groups_dir / "international.xlsx")},
     ]
 
     inputs = PipelineInputs(
         progress_report=TEST_DIR / "progress_report.xlsx",
         contact_report=TEST_DIR / "contact_report.xlsx",
-        control_file=Path("."),   # unused — semester_groups takes precedence
-        group_dir=Path("."),      # unused
+        control_file=Path("."),  # unused — semester_groups takes precedence
+        group_dir=Path("."),  # unused
         output_dir=OUTPUT_DIR,
         semester_groups=semester_groups,
     )
@@ -150,14 +150,14 @@ def main() -> int:
         )
         return 1
 
-    run_test("1. Validation-only pass",        test_validation)
-    run_test("2. Full pipeline run",            test_full_run)
+    run_test("1. Validation-only pass", test_validation)
+    run_test("2. Full pipeline run", test_full_run)
     run_test("3. Semester groups (no control file)", test_semester_groups)
 
     # Summary
     print(f"\n{'=' * 55}")
     passed = sum(1 for _, ok in results if ok)
-    total  = len(results)
+    total = len(results)
     print(f"  Results: {passed}/{total} passed")
     for name, ok in results:
         print(f"    {'✅' if ok else '❌'}  {name}")

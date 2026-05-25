@@ -31,16 +31,17 @@ logger = logging.getLogger("intervention_sorter")
 @dataclass
 class CampaignRun:
     """A single processing run within a campaign season."""
-    run_id:          str
-    season:          str
-    checkpoint_type: str        # "Progress Report 1" / "Midterm" / "Progress Report 2"
-    timestamp:       str
-    students_processed: int     = 0
-    students_assigned:  int     = 0
-    students_unmatched: int     = 0
-    output_file:        str     = ""
-    assigned_total:     int     = 0   # size of assigned_students.txt after this run
-    notes:              str     = ""
+
+    run_id: str
+    season: str
+    checkpoint_type: str  # "Progress Report 1" / "Midterm" / "Progress Report 2"
+    timestamp: str
+    students_processed: int = 0
+    students_assigned: int = 0
+    students_unmatched: int = 0
+    output_file: str = ""
+    assigned_total: int = 0  # size of assigned_students.txt after this run
+    notes: str = ""
 
 
 class CampaignManager:
@@ -56,13 +57,13 @@ class CampaignManager:
 
     def record_run(
         self,
-        season:           str,
-        checkpoint_type:  str,
+        season: str,
+        checkpoint_type: str,
         students_processed: int,
-        students_assigned:  int,
+        students_assigned: int,
         students_unmatched: int,
-        output_file:      str = "",
-        notes:            str = "",
+        output_file: str = "",
+        notes: str = "",
     ) -> CampaignRun:
         """Record a completed processing run and save to disk."""
         assigned_total = self._count_assigned()
@@ -83,7 +84,10 @@ class CampaignManager:
         logger.info(
             "CampaignManager: Recorded run — Season: '%s' | Checkpoint: '%s' | "
             "Processed: %d | Assigned: %d",
-            season, checkpoint_type, students_processed, students_assigned,
+            season,
+            checkpoint_type,
+            students_processed,
+            students_assigned,
         )
         return run
 
@@ -143,10 +147,14 @@ class CampaignManager:
                 ASSIGNED_STUDENTS_PATH.unlink()
                 logger.info(
                     "CampaignManager: Cleared %d IDs from assigned_students.txt "
-                    "for season reset '%s'", cleared, season
+                    "for season reset '%s'",
+                    cleared,
+                    season,
                 )
             except Exception as exc:
-                logger.error("CampaignManager: Could not clear assigned_students.txt: %s", exc)
+                logger.error(
+                    "CampaignManager: Could not clear assigned_students.txt: %s", exc
+                )
         return cleared
 
     def delete_run(self, run_id: str) -> bool:
@@ -172,7 +180,9 @@ class CampaignManager:
         try:
             data = json.loads(CAMPAIGNS_PATH.read_text(encoding="utf-8"))
             self._runs = [CampaignRun(**r) for r in data.get("runs", [])]
-            logger.info("CampaignManager: Loaded %d runs from campaigns.json", len(self._runs))
+            logger.info(
+                "CampaignManager: Loaded %d runs from campaigns.json", len(self._runs)
+            )
         except Exception as exc:
             logger.warning("CampaignManager: Could not load campaigns.json: %s", exc)
             self._runs = []
@@ -181,9 +191,7 @@ class CampaignManager:
         CAMPAIGNS_PATH.parent.mkdir(parents=True, exist_ok=True)
         data = {"runs": [asdict(r) for r in self._runs]}
         try:
-            CAMPAIGNS_PATH.write_text(
-                json.dumps(data, indent=2), encoding="utf-8"
-            )
+            CAMPAIGNS_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
         except Exception as exc:
             logger.error("CampaignManager: Could not save campaigns.json: %s", exc)
 

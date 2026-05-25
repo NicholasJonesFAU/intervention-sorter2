@@ -11,7 +11,6 @@ from openpyxl.utils import get_column_letter
 from utils.config import STYLE, COLUMN_WIDTH_OVERRIDES
 
 
-
 def _argb(hex6: str) -> str:
     """Convert a 6-char RGB hex to 8-char ARGB by prepending FF."""
     hex6 = hex6.lstrip("#")
@@ -55,10 +54,10 @@ def apply_data_tab_formatting(
 ) -> None:
     header_fill = make_header_fill(header_hex or STYLE.header_fill_color)
     header_font = make_header_font()
-    alt_fill    = make_alt_fill()
+    alt_fill = make_alt_fill()
     default_fill = make_default_fill()
-    body_font   = make_body_font()
-    wrap_align  = make_wrap_alignment()
+    body_font = make_body_font()
+    wrap_align = make_wrap_alignment()
 
     max_col = ws.max_column
     max_row = ws.max_row
@@ -107,10 +106,12 @@ def apply_data_tab_formatting(
 def apply_summary_formatting(ws: Worksheet) -> None:
     header_fill = make_header_fill(STYLE.summary_accent_color)
     header_font = Font(
-        name=STYLE.header_font_name, size=12, bold=True,
+        name=STYLE.header_font_name,
+        size=12,
+        bold=True,
         color=_argb(STYLE.header_font_color),
     )
-    body_font  = Font(name=STYLE.body_font_name, size=10)
+    body_font = Font(name=STYLE.body_font_name, size=10)
     label_font = Font(name=STYLE.body_font_name, size=10, bold=True)
 
     for row in ws.iter_rows():

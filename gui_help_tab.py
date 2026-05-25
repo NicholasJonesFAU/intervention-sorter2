@@ -40,8 +40,12 @@ def build_help_tab(self):
 
     inner = tk.Frame(canvas, bg=theme.PANEL_BG)
     canvas_window = canvas.create_window((0, 0), window=inner, anchor="nw")
-    inner.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-    canvas.bind("<Configure>", lambda e: canvas.itemconfig(canvas_window, width=e.width))
+    inner.bind(
+        "<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+    )
+    canvas.bind(
+        "<Configure>", lambda e: canvas.itemconfig(canvas_window, width=e.width)
+    )
 
     def _help_wheel(e):
         canvas.yview_scroll(int(-1 * (e.delta / 120)), "units")
@@ -121,8 +125,12 @@ def build_help_tab(self):
         "Select your three output workbooks (PR1, Midterm, PR2) to analyze how the "
         "at-risk population moved across the semester."
     )
-    item("Student trajectories: Persistent, Recovered Early, Recovered Late, Relapsed, etc.")
-    item("Flow analysis: carried forward, recovered, and new students at each transition")
+    item(
+        "Student trajectories: Persistent, Recovered Early, Recovered Late, Relapsed, etc."
+    )
+    item(
+        "Flow analysis: carried forward, recovered, and new students at each transition"
+    )
     item("By Group breakdown across all three checkpoints")
     item("Master Season Report: combined end-of-semester workbook with student list")
 
@@ -155,7 +163,9 @@ def build_help_tab(self):
         "(e.g. output/Fall_2026/). Each workbook includes:"
     )
     item("Data tabs: one per group + Risk_1_2 + Risk_3_Plus")
-    item("Summary tab with charts: students by group, contact coverage, risk distribution")
+    item(
+        "Summary tab with charts: students by group, contact coverage, risk distribution"
+    )
     item("Missing_Contacts tab: students with no phone or email found")
     item("QA_Log tab: data quality events for institutional auditing")
     item("Processing_Manifest tab: run metadata for reproducibility")
@@ -164,13 +174,25 @@ def build_help_tab(self):
     para(
         "Column names don't match?",
     )
-    para("  → Go to the Settings tab and update the column name for that field.", indent=16)
+    para(
+        "  → Go to the Settings tab and update the column name for that field.",
+        indent=16,
+    )
     para("Students not appearing in output?")
-    para("  → Check the Pre-Run Check button — it will identify missing column issues.", indent=16)
+    para(
+        "  → Check the Pre-Run Check button — it will identify missing column issues.",
+        indent=16,
+    )
     para("Want to rerun a checkpoint from scratch?")
-    para("  → Use Reset Checkpoint in the Campaigns tab to clear the assigned list.", indent=16)
+    para(
+        "  → Use Reset Checkpoint in the Campaigns tab to clear the assigned list.",
+        indent=16,
+    )
     para("Starting a new semester?")
-    para("  → Complete or Reset the current semester in the Campaigns tab first.", indent=16)
+    para(
+        "  → Complete or Reset the current semester in the Campaigns tab first.",
+        indent=16,
+    )
 
     ttk.Separator(inner, orient="horizontal").pack(fill="x", pady=(20, 8))
     tk.Label(

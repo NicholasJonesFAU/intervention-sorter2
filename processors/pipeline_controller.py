@@ -60,7 +60,9 @@ class PipelineInputs:
     skip_groups: set = None  # Group tab names to skip (students fall to buckets)
     season: str = ""
     checkpoint_type: str = "Progress Report"
-    semester_groups: list = None  # [{name, file_path}] — replaces control_file + group_dir when set
+    semester_groups: list = (
+        None  # [{name, file_path}] — replaces control_file + group_dir when set
+    )
 
 
 @dataclass
@@ -81,7 +83,9 @@ class PipelineController:
     Orchestrates the full processing pipeline.
     """
 
-    def __init__(self, progress_callback: Optional[Callable[[str], None]] = None) -> None:
+    def __init__(
+        self, progress_callback: Optional[Callable[[str], None]] = None
+    ) -> None:
         """
         Args:
             progress_callback: Optional callable(message) for GUI status updates.
@@ -107,7 +111,9 @@ class PipelineController:
 
         self._current_season = getattr(inputs, "season", "")
         logger.info("=" * 60)
-        logger.info("Pipeline starting: %s", self._start_time.strftime("%Y-%m-%d %H:%M:%S"))
+        logger.info(
+            "Pipeline starting: %s", self._start_time.strftime("%Y-%m-%d %H:%M:%S")
+        )
         logger.info("=" * 60)
 
         try:
@@ -185,13 +191,17 @@ class PipelineController:
             group_order = [g.safe_tab_name for g in matcher.group_definitions]
 
             # Calculate assignment metrics
-            total_assigned = sum(len(group_data.get(tab, pd.DataFrame())) for tab in group_order)
-            total_unmatched = len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame())) + len(
-                group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame())
+            total_assigned = sum(
+                len(group_data.get(tab, pd.DataFrame())) for tab in group_order
             )
+            total_unmatched = len(
+                group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame())
+            ) + len(group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame()))
             self._metrics["total_assigned"] = total_assigned
             self._metrics["total_unmatched"] = total_unmatched
-            self._metrics["total_risk_1_2"] = len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame()))
+            self._metrics["total_risk_1_2"] = len(
+                group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame())
+            )
             self._metrics["total_risk_3_plus"] = len(
                 group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame())
             )
@@ -223,7 +233,9 @@ class PipelineController:
             end_time = datetime.now()
             duration = (end_time - self._start_time).total_seconds()
 
-            self._metrics["processing_timestamp"] = self._start_time.strftime("%Y-%m-%d %H:%M:%S")
+            self._metrics["processing_timestamp"] = self._start_time.strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
             self._metrics["execution_duration"] = duration
             self._metrics["output_filename"] = output_path.name
 
@@ -330,7 +342,9 @@ class PipelineController:
                 preview_info.append(
                     f"Total input rows: {grade_metrics.get('total_input_rows', 0):,}"
                 )
-                preview_info.append(f"At-risk rows: {grade_metrics.get('total_at_risk_rows', 0):,}")
+                preview_info.append(
+                    f"At-risk rows: {grade_metrics.get('total_at_risk_rows', 0):,}"
+                )
                 preview_info.append(
                     f"Duplicate course rows: {grade_metrics.get('duplicate_course_rows_removed', 0):,}"
                 )
@@ -345,10 +359,14 @@ class PipelineController:
             try:
                 matcher = GroupMatcher(self._qa_log)
                 matcher.load_control_file(
-                    inputs.control_file, inputs.group_dir, skip_groups=inputs.skip_groups
+                    inputs.control_file,
+                    inputs.group_dir,
+                    skip_groups=inputs.skip_groups,
                 )
                 for g in matcher.group_definitions:
-                    preview_info.append(f"Group '{g.tab_name}': {len(g.student_ids):,} IDs loaded")
+                    preview_info.append(
+                        f"Group '{g.tab_name}': {len(g.student_ids):,} IDs loaded"
+                    )
             except Exception as exc:
                 issues.append(f"Group file validation error: {exc}")
 
@@ -412,12 +430,18 @@ class PipelineController:
         from utils.config import ASSIGNED_STUDENTS_PATH
 
         if not ASSIGNED_STUDENTS_PATH.exists():
-            logger.info("Pipeline: No assigned_students.txt found — no exclusions applied.")
+            logger.info(
+                "Pipeline: No assigned_students.txt found — no exclusions applied."
+            )
             return students_df, 0
         try:
             lines = ASSIGNED_STUDENTS_PATH.read_text(encoding="utf-8").splitlines()
-            previously_assigned = {line.strip().upper() for line in lines if line.strip()}
-            logger.info("Pipeline: Loaded %d previously assigned IDs.", len(previously_assigned))
+            previously_assigned = {
+                line.strip().upper() for line in lines if line.strip()
+            }
+            logger.info(
+                "Pipeline: Loaded %d previously assigned IDs.", len(previously_assigned)
+            )
         except Exception as exc:
             logger.warning("Pipeline: Could not read assigned_students.txt: %s", exc)
             return students_df, 0
@@ -425,7 +449,9 @@ class PipelineController:
         mask = students_df["Student ID"].isin(previously_assigned)
         excluded_count = int(mask.sum())
         filtered_df = students_df[~mask].copy().reset_index(drop=True)
-        logger.info("Pipeline: Excluded %d | %d remaining.", excluded_count, len(filtered_df))
+        logger.info(
+            "Pipeline: Excluded %d | %d remaining.", excluded_count, len(filtered_df)
+        )
         return filtered_df, excluded_count
 
     def _append_assigned_students(self, group_data: dict, group_order: list) -> None:
@@ -433,7 +459,11 @@ class PipelineController:
         Append ALL assigned student IDs to assigned_students.txt —
         includes group-matched AND unmatched bucket students.
         """
-        from utils.config import ASSIGNED_STUDENTS_PATH, UNMATCHED_LOW_TAB, UNMATCHED_HIGH_TAB
+        from utils.config import (
+            ASSIGNED_STUDENTS_PATH,
+            UNMATCHED_LOW_TAB,
+            UNMATCHED_HIGH_TAB,
+        )
 
         all_tabs = list(group_order) + [UNMATCHED_LOW_TAB, UNMATCHED_HIGH_TAB]
         new_ids = []
@@ -452,7 +482,9 @@ class PipelineController:
             try:
                 existing = {
                     line.strip().upper()
-                    for line in ASSIGNED_STUDENTS_PATH.read_text(encoding="utf-8").splitlines()
+                    for line in ASSIGNED_STUDENTS_PATH.read_text(
+                        encoding="utf-8"
+                    ).splitlines()
                     if line.strip()
                 }
             except Exception:

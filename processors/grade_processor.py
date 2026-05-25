@@ -46,7 +46,9 @@ class GradeProcessor:
 
         # Validate required columns using mapped names
         validation = validate_required_columns(
-            df_raw, get_settings().progress_required_columns, f"Progress Report ({file_path.name})"
+            df_raw,
+            get_settings().progress_required_columns,
+            f"Progress Report ({file_path.name})",
         )
         if not validation.is_valid:
             raise ValueError("\n".join(validation.errors))
@@ -54,7 +56,9 @@ class GradeProcessor:
         df = self._normalize_columns(df_raw, file_path.name)
         df_at_risk = self._filter_at_risk(df)
         self._total_at_risk_rows = len(df_at_risk)
-        logger.info("GradeProcessor: %d at-risk rows after filtering", self._total_at_risk_rows)
+        logger.info(
+            "GradeProcessor: %d at-risk rows after filtering", self._total_at_risk_rows
+        )
 
         if df_at_risk.empty:
             logger.warning("GradeProcessor: No at-risk students found.")
@@ -68,7 +72,8 @@ class GradeProcessor:
         }
         logger.info(
             "GradeProcessor: Complete. %d clean at-risk rows. %d duplicates removed.",
-            len(df_clean), self._duplicate_course_rows_removed,
+            len(df_clean),
+            self._duplicate_course_rows_removed,
         )
         return df_clean, metrics
 
@@ -80,9 +85,14 @@ class GradeProcessor:
                 for encoding in ["utf-8-sig", "utf-8", "latin-1", "cp1252"]:
                     try:
                         df = pd.read_csv(
-                            file_path, dtype=str, keep_default_na=False, encoding=encoding
+                            file_path,
+                            dtype=str,
+                            keep_default_na=False,
+                            encoding=encoding,
                         )
-                        logger.info("GradeProcessor: CSV loaded with encoding '%s'", encoding)
+                        logger.info(
+                            "GradeProcessor: CSV loaded with encoding '%s'", encoding
+                        )
                         return df
                     except UnicodeDecodeError:
                         continue
@@ -92,10 +102,14 @@ class GradeProcessor:
                     file_path, dtype=str, keep_default_na=False, engine="openpyxl"
                 )
         except Exception as exc:
-            self.qa_log.log("FILE_LOAD_ERROR",
+            self.qa_log.log(
+                "FILE_LOAD_ERROR",
                 detail=f"Could not load progress report: {exc}",
-                source_file=file_path.name)
-            raise RuntimeError(f"Cannot open progress report '{file_path.name}': {exc}") from exc
+                source_file=file_path.name,
+            )
+            raise RuntimeError(
+                f"Cannot open progress report '{file_path.name}': {exc}"
+            ) from exc
 
     def _normalize_columns(self, df: pd.DataFrame, source: str) -> pd.DataFrame:
         """Rename file columns to internal names using PROGRESS_REPORT_COLUMN_MAP."""
@@ -104,14 +118,15 @@ class GradeProcessor:
 
         # Rename to internal standard names
         result["Student Name"] = normalize_string_series(result[col["student_name"]])
-        result["Student ID"]   = normalize_student_id_series(result[col["student_id"]])
-        result["Course"]       = normalize_string_series(result[col["course"]])
+        result["Student ID"] = normalize_student_id_series(result[col["student_id"]])
+        result["Course"] = normalize_string_series(result[col["course"]])
 
         # Course number (e.g. MAC1105) — optional, blank if not present
         course_num_col = col.get("course_number", "")
         result["Course Number"] = (
             normalize_string_series(result[course_num_col])
-            if course_num_col and course_num_col in result.columns else ""
+            if course_num_col and course_num_col in result.columns
+            else ""
         )
         result["__at_risk_bool"] = normalize_at_risk_series(result[col["at_risk"]])
 
@@ -119,25 +134,27 @@ class GradeProcessor:
         grade_col = col["letter_grade"]
         result["Current Grade"] = (
             normalize_string_series(result[grade_col])
-            if grade_col in result.columns else ""
+            if grade_col in result.columns
+            else ""
         )
 
         abs_col = col["absences"]
         result["Absences"] = (
             result[abs_col].apply(normalize_absences)
-            if abs_col in result.columns else 0.0
+            if abs_col in result.columns
+            else 0.0
         )
 
         ar_col = col["alert_reasons"]
         result["Alert Reasons"] = (
-            normalize_string_series(result[ar_col])
-            if ar_col in result.columns else ""
+            normalize_string_series(result[ar_col]) if ar_col in result.columns else ""
         )
 
         comment_col = col["comments"]
         result["Comments"] = (
             normalize_string_series(result[comment_col])
-            if comment_col in result.columns else ""
+            if comment_col in result.columns
+            else ""
         )
 
         # Flag blank Student IDs
@@ -146,23 +163,33 @@ class GradeProcessor:
             count = blank_mask.sum()
             logger.warning("GradeProcessor: %d rows have blank Student ID", count)
             for _, row in result[blank_mask].iterrows():
-                self.qa_log.log("BLANK_STUDENT_ID",
+                self.qa_log.log(
+                    "BLANK_STUDENT_ID",
                     detail=f"Blank Student ID. Course: {row.get('Course', '')}",
-                    source_file=source)
+                    source_file=source,
+                )
 
         return result
 
     def _filter_at_risk(self, df: pd.DataFrame) -> pd.DataFrame:
         return df[df["__at_risk_bool"]].copy()
 
-    def _remove_duplicate_course_rows(self, df: pd.DataFrame, source: str) -> pd.DataFrame:
+    def _remove_duplicate_course_rows(
+        self, df: pd.DataFrame, source: str
+    ) -> pd.DataFrame:
         dup_mask = df.duplicated(subset=["Student ID", "Course"], keep="first")
         dup_count = dup_mask.sum()
         if dup_count > 0:
-            logger.info("GradeProcessor: Removing %d duplicate (Student ID + Course) rows", dup_count)
+            logger.info(
+                "GradeProcessor: Removing %d duplicate (Student ID + Course) rows",
+                dup_count,
+            )
             for _, row in df[dup_mask].iterrows():
-                self.qa_log.log("DUPLICATE_COURSE_ROW", student_id=row["Student ID"],
+                self.qa_log.log(
+                    "DUPLICATE_COURSE_ROW",
+                    student_id=row["Student ID"],
                     detail=f"Duplicate course row removed: {row.get('Course', '')}",
-                    source_file=source)
+                    source_file=source,
+                )
         self._duplicate_course_rows_removed = dup_count
         return df[~dup_mask].copy()

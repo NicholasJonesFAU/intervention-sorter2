@@ -14,7 +14,11 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, scrolledtext
 from gui_widgets import section_label, RoundedButton, FilePickerRow
-from gui_dialogs import show_group_selection_dialog, ensure_season_set, show_new_semester_dialog
+from gui_dialogs import (
+    show_group_selection_dialog,
+    ensure_season_set,
+    show_new_semester_dialog,
+)
 from gui_logging import append_log, clear_log, configure_log_tags, PURPLE_LOG_TAGS
 from gui_progress_tab import build_progress_report_sorter_tab
 from gui_report_status_tab import build_report_status_tab
@@ -47,7 +51,12 @@ from gui_campaign_actions import (
 )
 from gui_settings_tab import build_settings_tab
 from gui_help_tab import build_help_tab
-from gui_midterm_actions import run_midterm_sort, handle_midterm_complete, handle_midterm_error, on_midterm_prerun_check
+from gui_midterm_actions import (
+    run_midterm_sort,
+    handle_midterm_complete,
+    handle_midterm_error,
+    on_midterm_prerun_check,
+)
 from gui_progress_actions import (
     on_run_progress,
     on_validate_progress,
@@ -64,8 +73,15 @@ from gui_progress_actions import (
 # Ensure the app root is on sys.path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from processors.pipeline_controller import PipelineController, PipelineInputs, PipelineResult
-from processors.midterm_pipeline_controller import MidtermPipelineController, MidtermPipelineInputs
+from processors.pipeline_controller import (
+    PipelineController,
+    PipelineInputs,
+    PipelineResult,
+)
+from processors.midterm_pipeline_controller import (
+    MidtermPipelineController,
+    MidtermPipelineInputs,
+)
 from processors.trend_analyzer import TrendAnalyzer
 from processors.campaign_manager import CampaignManager
 from processors.semester_manager import SemesterManager, SEMESTER_STATUS_ACTIVE
@@ -100,15 +116,17 @@ class InterventionSorterApp(tk.Tk):
         # Window icon — titlebar + taskbar, works in dev and as frozen exe
         try:
             import sys as _sys
-            if getattr(_sys, 'frozen', False):
-                _icon_path = Path(_sys.executable).parent / 'assets' / 'icon.ico'
+
+            if getattr(_sys, "frozen", False):
+                _icon_path = Path(_sys.executable).parent / "assets" / "icon.ico"
             else:
-                _icon_path = Path(__file__).parent / 'assets' / 'icon.ico'
+                _icon_path = Path(__file__).parent / "assets" / "icon.ico"
             if _icon_path.exists():
                 # iconbitmap handles the titlebar; PIL + iconphoto handles the taskbar
                 # (tk.PhotoImage can't read .ico natively)
                 self.iconbitmap(default=str(_icon_path))
                 from PIL import Image, ImageTk
+
                 _pil_img = Image.open(str(_icon_path))
                 _tk_img = ImageTk.PhotoImage(_pil_img)
                 self.iconphoto(True, _tk_img)
@@ -324,7 +342,9 @@ class InterventionSorterApp(tk.Tk):
     def _show_group_selection_dialog(
         self, control_path: str, group_dir: str, checkpoint_name: str
     ) -> tuple:
-        return show_group_selection_dialog(self, control_path, group_dir, checkpoint_name)
+        return show_group_selection_dialog(
+            self, control_path, group_dir, checkpoint_name
+        )
 
     def _ensure_season_set(self) -> bool:
         return ensure_season_set(self)
@@ -511,7 +531,8 @@ class InterventionSorterApp(tk.Tk):
     def _on_reset_settings(self):
         """Reset all fields to config.py defaults."""
         if not messagebox.askyesno(
-            "Reset Settings", "Reset ALL column mappings to defaults?\nThis cannot be undone."
+            "Reset Settings",
+            "Reset ALL column mappings to defaults?\nThis cannot be undone.",
         ):
             return
 

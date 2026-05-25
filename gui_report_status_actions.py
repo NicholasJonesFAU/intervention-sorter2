@@ -77,7 +77,9 @@ def run_report_status(app) -> None:
     threading.Thread(target=_worker, daemon=True).start()
 
 
-def handle_report_status_complete(app, success: bool, message: str, overall: dict) -> None:
+def handle_report_status_complete(
+    app, success: bool, message: str, overall: dict
+) -> None:
     """Handle the result of faculty report status generation."""
     app._report_processing = False
     app._report_run_btn.config(state="normal")

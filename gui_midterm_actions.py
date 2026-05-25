@@ -10,7 +10,10 @@ import traceback
 from pathlib import Path
 from tkinter import messagebox
 
-from processors.midterm_pipeline_controller import MidtermPipelineController, MidtermPipelineInputs
+from processors.midterm_pipeline_controller import (
+    MidtermPipelineController,
+    MidtermPipelineInputs,
+)
 from processors.semester_manager import SemesterManager
 
 
@@ -24,7 +27,7 @@ def on_midterm_prerun_check(app):
 
     always_required = {
         "Midterm Grade File": app._midterm_file_picker.path,
-        "Contact Report":     app._midterm_contact_picker.path,
+        "Contact Report": app._midterm_contact_picker.path,
     }
     if not using_semester_groups:
         always_required["Group Control File"] = app._midterm_control_picker.path
@@ -57,7 +60,9 @@ def on_midterm_prerun_check(app):
         )
 
         if using_semester_groups:
-            app.after(0, app._midterm_log_write, "Checking semester group files...", "step")
+            app.after(
+                0, app._midterm_log_write, "Checking semester group files...", "step"
+            )
             all_results.extend(checker.check_semester_groups(semester_groups))
         else:
             app.after(0, app._midterm_log_write, "Checking group files...", "step")
@@ -72,22 +77,31 @@ def on_midterm_prerun_check(app):
 
     def _show_results(results):
         from gui_progress_actions import show_precheck_results
+
         show_precheck_results(app, results)
         # Re-route log writes to midterm log box
-        errors   = [r for r in results if r.level == "error"]
+        errors = [r for r in results if r.level == "error"]
         warnings = [r for r in results if r.level == "warning"]
-        infos    = [r for r in results if r.level == "info"]
+        infos = [r for r in results if r.level == "info"]
         for r in infos:
             app._midterm_log_write(f"  ℹ️  {r.message}", "info")
         for r in warnings:
             app._midterm_log_write(f"  ⚠️  {r.message}", "warning")
         for r in errors:
             app._midterm_log_write(f"  ❌  {r.message}", "error")
-        tag = "success" if not errors and not warnings else ("warning" if not errors else "error")
+        tag = (
+            "success"
+            if not errors and not warnings
+            else ("warning" if not errors else "error")
+        )
         summary = (
-            "✅ Pre-run check passed!" if not errors and not warnings
-            else f"⚠️  {len(warnings)} warning(s)" if not errors
-            else f"❌ {len(errors)} error(s) found"
+            "✅ Pre-run check passed!"
+            if not errors and not warnings
+            else (
+                f"⚠️  {len(warnings)} warning(s)"
+                if not errors
+                else f"❌ {len(errors)} error(s) found"
+            )
         )
         app._midterm_log_write(f"\n{summary}", tag)
 
@@ -116,9 +130,13 @@ def run_midterm_sort(app):
 
     if not using_semester_groups:
         if not app._midterm_control_picker.path:
-            errors.append("  Group Control File is required (no semester groups configured).")
+            errors.append(
+                "  Group Control File is required (no semester groups configured)."
+            )
         if not app._midterm_group_dir_picker.path:
-            errors.append("  Group Files Folder is required (no semester groups configured).")
+            errors.append(
+                "  Group Files Folder is required (no semester groups configured)."
+            )
 
     if errors:
         messagebox.showerror(
@@ -127,9 +145,15 @@ def run_midterm_sort(app):
         )
         return
 
-    season = app._campaign_season_var.get().strip() if hasattr(app, "_campaign_season_var") else ""
+    season = (
+        app._campaign_season_var.get().strip()
+        if hasattr(app, "_campaign_season_var")
+        else ""
+    )
     control_file = (
-        Path(app._midterm_control_picker.path) if app._midterm_control_picker.path else Path(".")
+        Path(app._midterm_control_picker.path)
+        if app._midterm_control_picker.path
+        else Path(".")
     )
     group_dir = (
         Path(app._midterm_group_dir_picker.path)
@@ -168,7 +192,9 @@ def run_midterm_sort(app):
     def _worker():
         try:
             controller = MidtermPipelineController(
-                progress_callback=lambda msg: app.after(0, app._midterm_log_write, msg, "step")
+                progress_callback=lambda msg: app.after(
+                    0, app._midterm_log_write, msg, "step"
+                )
             )
             result = controller.run(inputs)
             app.after(0, app._on_midterm_complete, result)

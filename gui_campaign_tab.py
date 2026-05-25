@@ -48,24 +48,34 @@ def build_campaign_tab(app):
 
     colors = [theme.NAVY, "#1A6B3C", "#9B2226"]
     for i, cp_name in enumerate(SEMESTER_CHECKPOINTS):
-        card = tk.Frame(cards_frame, bg="#ffffff", bd=1, relief="solid", padx=16, pady=12)
+        card = tk.Frame(
+            cards_frame, bg="#ffffff", bd=1, relief="solid", padx=16, pady=12
+        )
 
         card.grid(row=0, column=i, padx=(0, 12), sticky="nsew")
         cards_frame.columnconfigure(i, weight=1)
 
-        tk.Label(card, text=cp_name, bg="white", fg=theme.TEXT_FG, font=theme.FONT_BOLD).pack(
-            anchor="w"
-        )
+        tk.Label(
+            card, text=cp_name, bg="white", fg=theme.TEXT_FG, font=theme.FONT_BOLD
+        ).pack(anchor="w")
 
         status_lbl = tk.Label(
-            card, text="Not Started", bg="white", fg=theme.TEXT_MUTED, font=theme.FONT_MAIN
+            card,
+            text="Not Started",
+            bg="white",
+            fg=theme.TEXT_MUTED,
+            font=theme.FONT_MAIN,
         )
         status_lbl.pack(anchor="w", pady=(4, 0))
 
-        runs_lbl = tk.Label(card, text="", bg="white", fg=theme.TEXT_MUTED, font=theme.FONT_SUB)
+        runs_lbl = tk.Label(
+            card, text="", bg="white", fg=theme.TEXT_MUTED, font=theme.FONT_SUB
+        )
         runs_lbl.pack(anchor="w")
 
-        students_lbl = tk.Label(card, text="", bg="white", fg=theme.TEXT_MUTED, font=theme.FONT_SUB)
+        students_lbl = tk.Label(
+            card, text="", bg="white", fg=theme.TEXT_MUTED, font=theme.FONT_SUB
+        )
         students_lbl.pack(anchor="w")
 
         # Mark Complete / Reset buttons
@@ -216,8 +226,19 @@ def build_campaign_tab(app):
     hist_frame = tk.Frame(outer, bg=theme.PANEL_BG)
     hist_frame.pack(fill="both", expand=True)
 
-    cols = ("Semester", "Status", "Created", "Completed", "PR1", "Midterm", "PR2", "Master Report")
-    self._history_tree = ttk.Treeview(hist_frame, columns=cols, show="headings", height=8)
+    cols = (
+        "Semester",
+        "Status",
+        "Created",
+        "Completed",
+        "PR1",
+        "Midterm",
+        "PR2",
+        "Master Report",
+    )
+    self._history_tree = ttk.Treeview(
+        hist_frame, columns=cols, show="headings", height=8
+    )
     widths = [160, 90, 150, 150, 90, 90, 90, 200]
     for col, w in zip(cols, widths):
         self._history_tree.heading(col, text=col)

@@ -32,15 +32,15 @@ LOGS_DIR = BASE_DIR / "logs"
 # If your file uses different headers, update the VALUES (right side) only.
 # ---------------------------------------------------------------------------
 PROGRESS_REPORT_COLUMN_MAP = {
-    "student_name":  "Student Name",
-    "student_id":    "Student ID",
+    "student_name": "Student Name",
+    "student_id": "Student ID",
     "course_number": "Course Number",
-    "course":        "Course Name",
-    "at_risk":       "Marked At-Risk",
-    "letter_grade":  "Progress Report Grade",
-    "absences":      "Progress Report Number of Absences",
+    "course": "Course Name",
+    "at_risk": "Marked At-Risk",
+    "letter_grade": "Progress Report Grade",
+    "absences": "Progress Report Number of Absences",
     "alert_reasons": "Alert Reasons",
-    "comments":      "Progress Report Comment",
+    "comments": "Progress Report Comment",
 }
 
 # Required columns (derived from map)
@@ -64,11 +64,11 @@ PROGRESS_REPORT_OPTIONAL_COLUMNS = [
 # Update the VALUES (right side) to match your contact report headers.
 # ---------------------------------------------------------------------------
 CONTACT_REPORT_COLUMN_MAP = {
-    "student_id":      "ZNUMBER",
-    "phone_cellular":  "CELLULAR_PHONE",
-    "phone_local":     "LOCAL_PHONE",
+    "student_id": "ZNUMBER",
+    "phone_cellular": "CELLULAR_PHONE",
+    "phone_local": "LOCAL_PHONE",
     "phone_permanent": "PERMANENT_PHONE",
-    "email":           "FAU_EMAIL_ADDRESS",
+    "email": "FAU_EMAIL_ADDRESS",
 }
 
 
@@ -95,7 +95,10 @@ CONTACT_REPORT_OPTIONAL_COLUMNS = [
 # At-risk normalization — values treated as TRUE
 # ---------------------------------------------------------------------------
 AT_RISK_TRUE_VALUES = {
-    "true", "yes", "y", "1",
+    "true",
+    "yes",
+    "y",
+    "1",
 }
 
 # ---------------------------------------------------------------------------
@@ -128,7 +131,7 @@ MULTILINE_DELIMITER = "\n"
 # ---------------------------------------------------------------------------
 UNMATCHED_LOW_TAB = "Risk_1_2"
 UNMATCHED_HIGH_TAB = "Risk_3_Plus"
-UNMATCHED_HIGH_THRESHOLD = 3   # >= this value goes to Risk_3_Plus
+UNMATCHED_HIGH_THRESHOLD = 3  # >= this value goes to Risk_3_Plus
 
 # ---------------------------------------------------------------------------
 # Special tab names
@@ -152,12 +155,13 @@ SORT_ASCENDING = [False, True]
 # Excel tab name constraints
 # ---------------------------------------------------------------------------
 EXCEL_TAB_MAX_LEN = 31
-EXCEL_TAB_INVALID_CHARS = r'[\[\]:*?/\\]'
+EXCEL_TAB_INVALID_CHARS = r"[\[\]:*?/\\]"
 
 # ---------------------------------------------------------------------------
 # Supported progress report file formats
 # ---------------------------------------------------------------------------
 PROGRESS_REPORT_EXTENSIONS = {".xlsx", ".xls", ".csv"}
+
 
 # ---------------------------------------------------------------------------
 # Workbook styling
@@ -165,25 +169,26 @@ PROGRESS_REPORT_EXTENSIONS = {".xlsx", ".xls", ".csv"}
 @dataclass
 class StyleConfig:
     # FAU brand colors for Excel output
-    header_fill_color: str = "003366"    # FAU Navy
+    header_fill_color: str = "003366"  # FAU Navy
     header_font_color: str = "FFFFFF"
     header_font_size: int = 11
     header_font_name: str = "Calibri"
 
-    alt_row_fill_color: str = "E8EEF4"   # Light FAU blue-gray
+    alt_row_fill_color: str = "E8EEF4"  # Light FAU blue-gray
     default_fill_color: str = "FFFFFF"
 
     body_font_name: str = "Calibri"
     body_font_size: int = 10
 
     summary_accent_color: str = "004488"  # FAU navy lighter
-    qa_header_color: str = "9B2226"       # Dark red
-    manifest_header_color: str = "1A6B3C" # Dark green
+    qa_header_color: str = "9B2226"  # Dark red
+    manifest_header_color: str = "1A6B3C"  # Dark green
 
     min_col_width: int = 10
     max_col_width: int = 120
     row_height: int = 55
     freeze_row: int = 1
+
 
 STYLE = StyleConfig()
 
@@ -267,19 +272,19 @@ ASSIGNED_STUDENTS_PATH = OUTPUT_DIR / ASSIGNED_STUDENTS_FILENAME
 # Midterm grade report column mapping
 # ---------------------------------------------------------------------------
 MIDTERM_COLUMN_MAP = {
-    "student_id":     "Z#",
-    "last_name":      "LASTNAME",
-    "first_name":     "FIRSTNAME",
-    "email":          "FAU_EMAIL",
-    "college":        "COLLEGE",
-    "major":          "MAJOR",
+    "student_id": "Z#",
+    "last_name": "LASTNAME",
+    "first_name": "FIRSTNAME",
+    "email": "FAU_EMAIL",
+    "college": "COLLEGE",
+    "major": "MAJOR",
     "classification": "CLASSIFICATION",
-    "course_prefix":  "COURSE_PREFIX",
-    "course_number":  "COURSE_NUMBER",
-    "course_name":    "COURSE",
-    "section":        "COURSE_SECTION_NO",
-    "credit_hrs":     "CREDIT_HR",
-    "midterm_grade":  "MIDTERMGRADE",
+    "course_prefix": "COURSE_PREFIX",
+    "course_number": "COURSE_NUMBER",
+    "course_name": "COURSE",
+    "section": "COURSE_SECTION_NO",
+    "credit_hrs": "CREDIT_HR",
+    "midterm_grade": "MIDTERMGRADE",
 }
 
 MIDTERM_REQUIRED_COLUMNS = [
@@ -293,7 +298,11 @@ MIDTERM_REQUIRED_COLUMNS = [
 
 # Grades that trigger outreach — C- and below only
 MIDTERM_AT_RISK_GRADES = {
-    "c-", "d+", "d", "d-", "f",
+    "c-",
+    "d+",
+    "d",
+    "d-",
+    "f",
 }
 
 # Output columns for midterm tabs
@@ -324,27 +333,27 @@ TREND_OUTPUT_FILENAME_PATTERN = "CampaignTrend_{timestamp}.xlsx"
 
 # Student trajectory labels
 TRAJECTORY_LABELS = {
-    "persistent":       "Persistent (All 3)",
-    "recovered_early":  "Recovered Early (PR1 only)",
-    "recovered_late":   "Recovered Late (PR1+Mid only)",
-    "relapsed":         "Relapsed (PR1+PR2, not Mid)",
-    "new_midterm":      "New at Midterm",
-    "new_pr2":          "New at PR2",
-    "midterm_only":     "Midterm Only",
-    "pr2_only":         "PR2 Only",
-    "pr1_pr2":          "PR1 and PR2 (not Mid)",
+    "persistent": "Persistent (All 3)",
+    "recovered_early": "Recovered Early (PR1 only)",
+    "recovered_late": "Recovered Late (PR1+Mid only)",
+    "relapsed": "Relapsed (PR1+PR2, not Mid)",
+    "new_midterm": "New at Midterm",
+    "new_pr2": "New at PR2",
+    "midterm_only": "Midterm Only",
+    "pr2_only": "PR2 Only",
+    "pr1_pr2": "PR1 and PR2 (not Mid)",
 }
 
 TRAJECTORY_COLORS = {
-    "persistent":       "#C62828",   # Dark red
-    "recovered_early":  "#2E7D32",   # Dark green
-    "recovered_late":   "#388E3C",   # Medium green
-    "relapsed":         "#F57F17",   # Amber
-    "new_midterm":      "#1565C0",   # Blue
-    "new_pr2":          "#6A1B9A",   # Purple
-    "midterm_only":     "#00838F",   # Teal
-    "pr2_only":         "#4527A0",   # Deep purple
-    "pr1_pr2":          "#E65100",   # Orange
+    "persistent": "#C62828",  # Dark red
+    "recovered_early": "#2E7D32",  # Dark green
+    "recovered_late": "#388E3C",  # Medium green
+    "relapsed": "#F57F17",  # Amber
+    "new_midterm": "#1565C0",  # Blue
+    "new_pr2": "#6A1B9A",  # Purple
+    "midterm_only": "#00838F",  # Teal
+    "pr2_only": "#4527A0",  # Deep purple
+    "pr1_pr2": "#E65100",  # Orange
 }
 
 # ---------------------------------------------------------------------------
@@ -365,10 +374,11 @@ SEMESTER_CHECKPOINTS = ["Progress Report 1", "Midterm", "Progress Report 2"]
 
 CHECKPOINT_STATUS_NOT_STARTED = "Not Started"
 CHECKPOINT_STATUS_IN_PROGRESS = "In Progress"
-CHECKPOINT_STATUS_COMPLETE    = "Complete"
+CHECKPOINT_STATUS_COMPLETE = "Complete"
 
-SEMESTER_STATUS_ACTIVE   = "Active"
+SEMESTER_STATUS_ACTIVE = "Active"
 SEMESTER_STATUS_COMPLETE = "Complete"
+
 
 def get_semester_output_dir(season_name: str = "") -> "Path":
     """Return output/Season_Name/ if season set, else output/."""

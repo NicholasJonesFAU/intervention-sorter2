@@ -28,7 +28,9 @@ def build_settings_tab(self):
         canvas.itemconfig(canvas_window, width=canvas.winfo_width())
 
     inner.bind("<Configure>", on_configure)
-    canvas.bind("<Configure>", lambda e: canvas.itemconfig(canvas_window, width=e.width))
+    canvas.bind(
+        "<Configure>", lambda e: canvas.itemconfig(canvas_window, width=e.width)
+    )
 
     def _settings_wheel(e):
         canvas.yview_scroll(int(-1 * (e.delta / 120)), "units")
@@ -52,7 +54,11 @@ def build_settings_tab(self):
         ).pack(fill="x", pady=(16, 2))
         if subtitle:
             tk.Label(
-                parent, text=subtitle, bg=theme.PANEL_BG, fg=theme.TEXT_MUTED, font=theme.FONT_SUB
+                parent,
+                text=subtitle,
+                bg=theme.PANEL_BG,
+                fg=theme.TEXT_MUTED,
+                font=theme.FONT_SUB,
             ).pack(anchor="w", pady=(0, 4))
 
     def add_field(parent, key, label, value, tooltip=""):

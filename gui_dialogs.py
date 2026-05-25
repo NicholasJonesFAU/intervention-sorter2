@@ -204,7 +204,9 @@ def ensure_season_set(app) -> bool:
 
     season = app._campaign_season_var.get().strip()
     checkpoint = (
-        app._checkpoint_type_var.get().strip() if hasattr(app, "_checkpoint_type_var") else ""
+        app._checkpoint_type_var.get().strip()
+        if hasattr(app, "_checkpoint_type_var")
+        else ""
     )
 
     if season and checkpoint:
@@ -292,7 +294,9 @@ def ensure_season_set(app) -> bool:
             selectcolor="white",
         ).pack(side="left", padx=(0, 8))
 
-    error_label = tk.Label(dialog, text="", bg=theme.PANEL_BG, fg="#C62828", font=theme.FONT_SUB)
+    error_label = tk.Label(
+        dialog, text="", bg=theme.PANEL_BG, fg="#C62828", font=theme.FONT_SUB
+    )
     error_label.pack(padx=24, anchor="w")
 
     button_frame = tk.Frame(dialog, bg=theme.PANEL_BG)
@@ -394,7 +398,9 @@ def show_new_semester_dialog(app, on_startup: bool = False):
     entry.pack(side="left", ipady=5)
     entry.focus()
 
-    error_label = tk.Label(dialog, text="", bg=theme.PANEL_BG, fg="#C62828", font=theme.FONT_SUB)
+    error_label = tk.Label(
+        dialog, text="", bg=theme.PANEL_BG, fg="#C62828", font=theme.FONT_SUB
+    )
     error_label.pack(padx=24, anchor="w")
 
     button_frame = tk.Frame(dialog, bg=theme.PANEL_BG)

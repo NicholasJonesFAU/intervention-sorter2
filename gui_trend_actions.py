@@ -26,7 +26,9 @@ def run_trend_report(app):
     }
 
     if not any([paths["PR1"], paths["Mid"], paths["PR2"]]):
-        messagebox.showerror("Missing Input", "Please select at least one output workbook.")
+        messagebox.showerror(
+            "Missing Input", "Please select at least one output workbook."
+        )
         return
     if not paths["Output"]:
         messagebox.showerror("Missing Input", "Please select an output folder.")
@@ -50,7 +52,9 @@ def run_trend_report(app):
     def _worker():
         try:
             timestamp = datetime.now().strftime(LOG_DATE_FORMAT)
-            out_path = out_dir / TREND_OUTPUT_FILENAME_PATTERN.format(timestamp=timestamp)
+            out_path = out_dir / TREND_OUTPUT_FILENAME_PATTERN.format(
+                timestamp=timestamp
+            )
             out_dir.mkdir(parents=True, exist_ok=True)
 
             app.after(0, app._trend_log_write, "Loading workbooks...", "step")
@@ -110,10 +114,16 @@ def generate_master_report(app):
         "pr2": app._master_pr2_picker.path,
     }
     if not any(paths.values()):
-        messagebox.showerror("Missing Input", "Please select at least one output workbook.")
+        messagebox.showerror(
+            "Missing Input", "Please select at least one output workbook."
+        )
         return
 
-    season = app._campaign_season_var.get().strip() if hasattr(app, "_campaign_season_var") else ""
+    season = (
+        app._campaign_season_var.get().strip()
+        if hasattr(app, "_campaign_season_var")
+        else ""
+    )
     pr1_label = app._trend_pr1_label.get().strip() or "Progress Report 1"
     mid_label = app._trend_mid_label.get().strip() or "Midterm"
     pr2_label = app._trend_pr2_label.get().strip() or "Progress Report 2"

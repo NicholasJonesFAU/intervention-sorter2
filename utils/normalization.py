@@ -39,9 +39,13 @@ def normalize_student_id(value: Any) -> str:
 
 def normalize_student_id_series(series: pd.Series) -> pd.Series:
     """Vectorized normalization of a Student ID column."""
-    return series.astype(str).str.strip().str.replace(
-        r"[\s\u00a0\u200b\ufeff]+", "", regex=True
-    ).str.replace(r"\.0+$", "", regex=True).str.upper()
+    return (
+        series.astype(str)
+        .str.strip()
+        .str.replace(r"[\s\u00a0\u200b\ufeff]+", "", regex=True)
+        .str.replace(r"\.0+$", "", regex=True)
+        .str.upper()
+    )
 
 
 def normalize_at_risk_flag(value: Any) -> bool:

@@ -56,7 +56,9 @@ class MidtermPipelineInputs:
     skip_groups: set = None  # Group tab names to skip (students fall to buckets)
     season: str = ""
     checkpoint_type: str = "Midterm"
-    semester_groups: list = None  # [{name, file_path}] — replaces control_file + group_dir when set
+    semester_groups: list = (
+        None  # [{name, file_path}] — replaces control_file + group_dir when set
+    )
 
 
 @dataclass
@@ -70,7 +72,9 @@ class MidtermPipelineResult:
 
 class MidtermPipelineController:
 
-    def __init__(self, progress_callback: Optional[Callable[[str], None]] = None) -> None:
+    def __init__(
+        self, progress_callback: Optional[Callable[[str], None]] = None
+    ) -> None:
         self.progress_callback = progress_callback or (lambda msg: None)
         self._qa_log = QALog()
         self._start_time: Optional[datetime] = None
@@ -82,7 +86,10 @@ class MidtermPipelineController:
         self._metrics = {}
 
         logger.info("=" * 60)
-        logger.info("Midterm Pipeline starting: %s", self._start_time.strftime("%Y-%m-%d %H:%M:%S"))
+        logger.info(
+            "Midterm Pipeline starting: %s",
+            self._start_time.strftime("%Y-%m-%d %H:%M:%S"),
+        )
         logger.info("=" * 60)
 
         try:
@@ -115,7 +122,9 @@ class MidtermPipelineController:
             aggregator = MidtermAggregator()
             students_df = aggregator.aggregate(at_risk_df)
             self._metrics["total_distinct_students"] = len(students_df)
-            logger.info("Midterm Pipeline: %d distinct at-risk students.", len(students_df))
+            logger.info(
+                "Midterm Pipeline: %d distinct at-risk students.", len(students_df)
+            )
 
             # Step 4 — Exclude previously assigned (if enabled)
             excluded_count = 0
@@ -156,13 +165,17 @@ class MidtermPipelineController:
             group_data = matcher.match(students_df)
             group_order = [g.safe_tab_name for g in matcher.group_definitions]
 
-            total_assigned = sum(len(group_data.get(tab, pd.DataFrame())) for tab in group_order)
-            total_unmatched = len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame())) + len(
-                group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame())
+            total_assigned = sum(
+                len(group_data.get(tab, pd.DataFrame())) for tab in group_order
             )
+            total_unmatched = len(
+                group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame())
+            ) + len(group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame()))
             self._metrics["total_assigned"] = total_assigned
             self._metrics["total_unmatched"] = total_unmatched
-            self._metrics["total_risk_1_2"] = len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame()))
+            self._metrics["total_risk_1_2"] = len(
+                group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame())
+            )
             self._metrics["total_risk_3_plus"] = len(
                 group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame())
             )
@@ -173,7 +186,9 @@ class MidtermPipelineController:
             duration = (datetime.now() - self._start_time).total_seconds()
             self._metrics.update(
                 {
-                    "processing_timestamp": self._start_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "processing_timestamp": self._start_time.strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
                     "execution_duration": duration,
                     "output_filename": output_path.name,
                 }
@@ -292,7 +307,9 @@ class MidtermPipelineController:
             lines = ASSIGNED_STUDENTS_PATH.read_text(encoding="utf-8").splitlines()
             previously = {l.strip().upper() for l in lines if l.strip()}
         except Exception as exc:
-            logger.warning("Midterm Pipeline: Could not read assigned_students.txt: %s", exc)
+            logger.warning(
+                "Midterm Pipeline: Could not read assigned_students.txt: %s", exc
+            )
             return students_df, 0
         mask = students_df["Student ID"].isin(previously)
         excluded = int(mask.sum())
@@ -313,7 +330,9 @@ class MidtermPipelineController:
             try:
                 existing = {
                     l.strip().upper()
-                    for l in ASSIGNED_STUDENTS_PATH.read_text(encoding="utf-8").splitlines()
+                    for l in ASSIGNED_STUDENTS_PATH.read_text(
+                        encoding="utf-8"
+                    ).splitlines()
                     if l.strip()
                 }
             except Exception:
@@ -324,7 +343,8 @@ class MidtermPipelineController:
                 for sid in truly_new:
                     f.write(sid + "\n")
             logger.info(
-                "Midterm Pipeline: Appended %d IDs to assigned_students.txt", len(truly_new)
+                "Midterm Pipeline: Appended %d IDs to assigned_students.txt",
+                len(truly_new),
             )
 
     def _update(self, message: str) -> None:
@@ -344,13 +364,17 @@ from utils.logging_utils import QALog
 class MidtermExporter(Exporter):
     """Extends the base Exporter to use MIDTERM_OUTPUT_COLUMNS."""
 
-    def export(self, group_data, group_order, qa_log, metrics, output_path, source_files):
+    def export(
+        self, group_data, group_order, qa_log, metrics, output_path, source_files
+    ):
         # Temporarily swap output columns
         import utils.config as cfg
 
         original = cfg.OUTPUT_COLUMNS
         cfg.OUTPUT_COLUMNS = MIDTERM_OUTPUT_COLUMNS
         try:
-            super().export(group_data, group_order, qa_log, metrics, output_path, source_files)
+            super().export(
+                group_data, group_order, qa_log, metrics, output_path, source_files
+            )
         finally:
             cfg.OUTPUT_COLUMNS = original

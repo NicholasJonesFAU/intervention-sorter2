@@ -65,6 +65,7 @@ def setup_logger(name: str = "intervention_sorter") -> logging.Logger:
 # QA Log — in-memory event collector
 # ---------------------------------------------------------------------------
 
+
 class QALog:
     """
     Collects QA events during processing for export to the QA_Log worksheet.
@@ -95,13 +96,15 @@ class QALog:
         detail: str = "",
         source_file: str = "",
     ) -> None:
-        self._entries.append({
-            "Category": category,
-            "Student ID": student_id,
-            "Detail": detail,
-            "Source File": source_file,
-            "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        })
+        self._entries.append(
+            {
+                "Category": category,
+                "Student ID": student_id,
+                "Detail": detail,
+                "Source File": source_file,
+                "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+        )
 
     def entries(self) -> List[Dict[str, Any]]:
         return list(self._entries)

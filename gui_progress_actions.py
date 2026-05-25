@@ -93,7 +93,10 @@ def on_prerun_check_progress(app):
 
         try:
             from utils.settings_manager import get_settings
-            from utils.normalization import normalize_student_id_series, normalize_at_risk_series
+            from utils.normalization import (
+                normalize_student_id_series,
+                normalize_at_risk_series,
+            )
             import pandas as pd
 
             col = get_settings().progress_report_map
@@ -160,7 +163,9 @@ def show_precheck_results(app, results):
             + "\n".join(f"❌ {r.message[:120]}" for r in errors[:5]),
         )
     elif warnings:
-        app._log(f"\n⚠️  Pre-run check passed with {len(warnings)} warning(s).", "warning")
+        app._log(
+            f"\n⚠️  Pre-run check passed with {len(warnings)} warning(s).", "warning"
+        )
         messagebox.showwarning(
             "Pre-Run Check — Warnings",
             f"No errors found but {len(warnings)} warning(s):\n\n"
@@ -200,9 +205,13 @@ def collect_progress_inputs(app):
 
     if not using_semester_groups:
         if not app._control_picker.path:
-            errors.append("• Group Control File is required (no semester groups configured).")
+            errors.append(
+                "• Group Control File is required (no semester groups configured)."
+            )
         if not app._group_dir_picker.path:
-            errors.append("• Group Files Folder is required (no semester groups configured).")
+            errors.append(
+                "• Group Files Folder is required (no semester groups configured)."
+            )
 
     if errors:
         messagebox.showerror(
@@ -211,15 +220,23 @@ def collect_progress_inputs(app):
         )
         return None
 
-    season = app._campaign_season_var.get().strip() if hasattr(app, "_campaign_season_var") else ""
+    season = (
+        app._campaign_season_var.get().strip()
+        if hasattr(app, "_campaign_season_var")
+        else ""
+    )
     checkpoint = (
         app._checkpoint_type_var.get()
         if hasattr(app, "_checkpoint_type_var")
         else "Progress Report"
     )
 
-    control_file = Path(app._control_picker.path) if app._control_picker.path else Path(".")
-    group_dir = Path(app._group_dir_picker.path) if app._group_dir_picker.path else Path(".")
+    control_file = (
+        Path(app._control_picker.path) if app._control_picker.path else Path(".")
+    )
+    group_dir = (
+        Path(app._group_dir_picker.path) if app._group_dir_picker.path else Path(".")
+    )
 
     return PipelineInputs(
         progress_report=Path(always_required["Progress Report"]),
@@ -240,7 +257,9 @@ def start_progress_processing(app, inputs, validate_only: bool):
     app._set_buttons_state("disabled")
     app._progress_bar.start(12)
     app._log("=" * 60, "info")
-    app._log("VALIDATION CHECK" if validate_only else "STARTING FULL PROCESSING", "step")
+    app._log(
+        "VALIDATION CHECK" if validate_only else "STARTING FULL PROCESSING", "step"
+    )
     app._log("=" * 60, "info")
 
     def _worker():
@@ -248,7 +267,11 @@ def start_progress_processing(app, inputs, validate_only: bool):
             controller = PipelineController(
                 progress_callback=lambda msg: app.after(0, app._log, msg, "step")
             )
-            result = controller.validate_only(inputs) if validate_only else controller.run(inputs)
+            result = (
+                controller.validate_only(inputs)
+                if validate_only
+                else controller.run(inputs)
+            )
             app.after(0, app._on_complete, result)
         except Exception:
             app.after(0, app._on_error, traceback.format_exc())
@@ -306,7 +329,9 @@ def on_progress_complete(app, result):
             )
             + "\n\n"
             + result.message
-            + ("\n\nDetails:\n" + "\n".join(result.errors[:5]) if result.errors else ""),
+            + (
+                "\n\nDetails:\n" + "\n".join(result.errors[:5]) if result.errors else ""
+            ),
         )
 
 

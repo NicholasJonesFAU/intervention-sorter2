@@ -18,19 +18,19 @@ from dataclasses import dataclass, field, asdict
 
 from utils.config import (
     PROGRESS_REPORT_COLUMN_MAP as _DEFAULT_PROGRESS,
-    CONTACT_REPORT_COLUMN_MAP   as _DEFAULT_CONTACT,
-    MIDTERM_COLUMN_MAP          as _DEFAULT_MIDTERM,
+    CONTACT_REPORT_COLUMN_MAP as _DEFAULT_CONTACT,
+    MIDTERM_COLUMN_MAP as _DEFAULT_MIDTERM,
     BASE_DIR,
 )
 
 # Default faculty report column names
 _DEFAULT_FACULTY = {
-    "first_name":   "Professor Requested First Name",
-    "last_name":    "Professor Requested Last Name",
-    "email":        "Professor Requested Email",
+    "first_name": "Professor Requested First Name",
+    "last_name": "Professor Requested Last Name",
+    "email": "Professor Requested Email",
     "course_number": "Course Number",
     "section_name": "Section Name",
-    "responded":    "Responded",
+    "responded": "Responded",
 }
 
 logger = logging.getLogger("intervention_sorter")
@@ -42,21 +42,23 @@ SETTINGS_PATH = BASE_DIR / "settings.json"
 class AppSettings:
     """All user-editable column mappings."""
 
-    progress_report_map: Dict[str, str] = field(default_factory=lambda: dict(_DEFAULT_PROGRESS))
-    contact_report_map:  Dict[str, str] = field(default_factory=lambda: dict(_DEFAULT_CONTACT))
-    midterm_map:         Dict[str, str] = field(default_factory=lambda: dict(_DEFAULT_MIDTERM))
-    faculty_map:         Dict[str, str] = field(default_factory=lambda: dict(_DEFAULT_FACULTY))
+    progress_report_map: Dict[str, str] = field(
+        default_factory=lambda: dict(_DEFAULT_PROGRESS)
+    )
+    contact_report_map: Dict[str, str] = field(
+        default_factory=lambda: dict(_DEFAULT_CONTACT)
+    )
+    midterm_map: Dict[str, str] = field(default_factory=lambda: dict(_DEFAULT_MIDTERM))
+    faculty_map: Dict[str, str] = field(default_factory=lambda: dict(_DEFAULT_FACULTY))
 
     def save(self) -> None:
         """Write current settings to settings.json."""
         data = {
             "progress_report_map": self.progress_report_map,
-            "contact_report_map":  self.contact_report_map,
+            "contact_report_map": self.contact_report_map,
         }
         try:
-            SETTINGS_PATH.write_text(
-                json.dumps(data, indent=2), encoding="utf-8"
-            )
+            SETTINGS_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
             logger.info("SettingsManager: Saved settings to '%s'", SETTINGS_PATH)
         except Exception as exc:
             logger.error("SettingsManager: Could not save settings: %s", exc)
@@ -65,9 +67,9 @@ class AppSettings:
     def reset_to_defaults(self) -> None:
         """Reset all mappings to config.py defaults."""
         self.progress_report_map = dict(_DEFAULT_PROGRESS)
-        self.contact_report_map  = dict(_DEFAULT_CONTACT)
-        self.midterm_map         = dict(_DEFAULT_MIDTERM)
-        self.faculty_map         = dict(_DEFAULT_FACULTY)
+        self.contact_report_map = dict(_DEFAULT_CONTACT)
+        self.midterm_map = dict(_DEFAULT_MIDTERM)
+        self.faculty_map = dict(_DEFAULT_FACULTY)
 
     # Convenience properties so processors can use the same names as before
     @property
@@ -82,8 +84,14 @@ class AppSettings:
     @property
     def midterm_required_columns(self):
         m = self.midterm_map
-        return [m["student_id"], m["last_name"], m["first_name"],
-                m["course_prefix"], m["course_number"], m["midterm_grade"]]
+        return [
+            m["student_id"],
+            m["last_name"],
+            m["first_name"],
+            m["course_prefix"],
+            m["course_number"],
+            m["midterm_grade"],
+        ]
 
     @property
     def faculty_required_columns(self):
@@ -119,7 +127,9 @@ def reload_settings() -> AppSettings:
 
 def _load() -> AppSettings:
     if not SETTINGS_PATH.exists():
-        logger.info("SettingsManager: No settings.json found — using config.py defaults.")
+        logger.info(
+            "SettingsManager: No settings.json found — using config.py defaults."
+        )
         return AppSettings()
 
     try:

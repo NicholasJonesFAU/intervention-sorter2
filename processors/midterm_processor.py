@@ -58,7 +58,9 @@ class MidtermProcessor:
 
         # Validate required columns
         validation = validate_required_columns(
-            df_raw, get_settings().midterm_required_columns, f"Midterm File ({file_path.name})"
+            df_raw,
+            get_settings().midterm_required_columns,
+            f"Midterm File ({file_path.name})",
         )
         if not validation.is_valid:
             raise ValueError("\n".join(validation.errors))
@@ -74,13 +76,14 @@ class MidtermProcessor:
         df_clean = self._remove_duplicates(df_at_risk, file_path.name)
 
         metrics = {
-            "total_input_rows":          self._total_input_rows,
-            "total_at_risk_rows":        self._total_at_risk_rows,
-            "duplicate_rows_removed":    self._duplicate_rows_removed,
+            "total_input_rows": self._total_input_rows,
+            "total_at_risk_rows": self._total_at_risk_rows,
+            "duplicate_rows_removed": self._duplicate_rows_removed,
         }
         logger.info(
             "MidtermProcessor: Complete. %d clean rows, %d duplicates removed.",
-            len(df_clean), self._duplicate_rows_removed,
+            len(df_clean),
+            self._duplicate_rows_removed,
         )
         return df_clean, metrics
 
@@ -95,9 +98,14 @@ class MidtermProcessor:
                 for encoding in ["utf-8-sig", "utf-8", "latin-1", "cp1252"]:
                     try:
                         df = pd.read_csv(
-                            file_path, dtype=str, keep_default_na=False, encoding=encoding
+                            file_path,
+                            dtype=str,
+                            keep_default_na=False,
+                            encoding=encoding,
                         )
-                        logger.info("MidtermProcessor: CSV loaded with encoding '%s'", encoding)
+                        logger.info(
+                            "MidtermProcessor: CSV loaded with encoding '%s'", encoding
+                        )
                         return df
                     except UnicodeDecodeError:
                         continue
@@ -107,9 +115,11 @@ class MidtermProcessor:
                     file_path, dtype=str, keep_default_na=False, engine="openpyxl"
                 )
         except Exception as exc:
-            self.qa_log.log("FILE_LOAD_ERROR",
+            self.qa_log.log(
+                "FILE_LOAD_ERROR",
                 detail=f"Could not load midterm file: {exc}",
-                source_file=file_path.name)
+                source_file=file_path.name,
+            )
             raise RuntimeError(
                 f"Cannot open midterm file '{file_path.name}': {exc}"
             ) from exc
@@ -118,42 +128,48 @@ class MidtermProcessor:
         col = get_settings().midterm_map
         result = df.copy()
 
-        result["Student ID"]   = normalize_student_id_series(result[col["student_id"]])
-        result["Last Name"]    = normalize_string_series(result[col["last_name"]])
-        result["First Name"]   = normalize_string_series(result[col["first_name"]])
+        result["Student ID"] = normalize_student_id_series(result[col["student_id"]])
+        result["Last Name"] = normalize_string_series(result[col["last_name"]])
+        result["First Name"] = normalize_string_series(result[col["first_name"]])
         result["Student Name"] = result["Last Name"] + ", " + result["First Name"]
 
         # Email from midterm file (FAU_EMAIL) — used if contact report has no match
         result["Midterm Email"] = (
             normalize_string_series(result[col["email"]])
-            if col["email"] in result.columns else ""
+            if col["email"] in result.columns
+            else ""
         )
 
         # Course fields
         result["Course Prefix"] = normalize_string_series(result[col["course_prefix"]])
-        result["Course Num"]    = normalize_string_series(result[col["course_number"]])
+        result["Course Num"] = normalize_string_series(result[col["course_number"]])
         result["Course Number"] = result["Course Prefix"] + result["Course Num"]
-        result["Course"]        = (
+        result["Course"] = (
             normalize_string_series(result[col["course_name"]])
-            if col["course_name"] in result.columns else result["Course Number"]
+            if col["course_name"] in result.columns
+            else result["Course Number"]
         )
-        result["Section"]       = (
+        result["Section"] = (
             normalize_string_series(result[col["section"]])
-            if col["section"] in result.columns else ""
+            if col["section"] in result.columns
+            else ""
         )
 
         # Student info
-        result["College"]        = (
+        result["College"] = (
             normalize_string_series(result[col["college"]])
-            if col["college"] in result.columns else ""
+            if col["college"] in result.columns
+            else ""
         )
-        result["Major"]          = (
+        result["Major"] = (
             normalize_string_series(result[col["major"]])
-            if col["major"] in result.columns else ""
+            if col["major"] in result.columns
+            else ""
         )
         result["Classification"] = (
             normalize_string_series(result[col["classification"]])
-            if col["classification"] in result.columns else ""
+            if col["classification"] in result.columns
+            else ""
         )
 
         # Midterm grade — normalized to uppercase stripped string
@@ -162,11 +178,15 @@ class MidtermProcessor:
         # Flag blank Student IDs
         blank_mask = result["Student ID"] == ""
         if blank_mask.any():
-            logger.warning("MidtermProcessor: %d rows with blank Student ID", blank_mask.sum())
+            logger.warning(
+                "MidtermProcessor: %d rows with blank Student ID", blank_mask.sum()
+            )
             for _, row in result[blank_mask].iterrows():
-                self.qa_log.log("BLANK_STUDENT_ID",
+                self.qa_log.log(
+                    "BLANK_STUDENT_ID",
                     detail=f"Blank Student ID. Course: {row.get('Course Number', '')}",
-                    source_file=source)
+                    source_file=source,
+                )
 
         return result
 
@@ -182,9 +202,11 @@ class MidtermProcessor:
         if dup_count > 0:
             logger.info("MidtermProcessor: Removing %d duplicate rows", dup_count)
             for _, row in df[dup_mask].iterrows():
-                self.qa_log.log("DUPLICATE_COURSE_ROW",
+                self.qa_log.log(
+                    "DUPLICATE_COURSE_ROW",
                     student_id=row["Student ID"],
                     detail=f"Duplicate removed: {row.get('Course Number', '')}",
-                    source_file=source)
+                    source_file=source,
+                )
         self._duplicate_rows_removed = dup_count
         return df[~dup_mask].copy()

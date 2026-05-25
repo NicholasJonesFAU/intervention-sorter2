@@ -19,9 +19,15 @@ import gui_theme as theme
 def section_label(parent, text: str) -> tk.Frame:
     """Left red-accent bar + uppercase section heading."""
     frame = tk.Frame(parent, bg=theme.PANEL_BG)
-    tk.Frame(frame, bg=theme.RED_ACCENT, width=3).pack(side="left", fill="y", padx=(0, 8))
+    tk.Frame(frame, bg=theme.RED_ACCENT, width=3).pack(
+        side="left", fill="y", padx=(0, 8)
+    )
     tk.Label(
-        frame, text=text.upper(), bg=theme.PANEL_BG, fg=theme.NAVY_DARK, font=theme.FONT_TITLE
+        frame,
+        text=text.upper(),
+        bg=theme.PANEL_BG,
+        fg=theme.NAVY_DARK,
+        font=theme.FONT_TITLE,
     ).pack(side="left", anchor="w")
     return frame
 
@@ -89,14 +95,27 @@ class RoundedButton(tk.Canvas):
     def _draw(self, color: str) -> None:
         self.delete("all")
         w, h, r = int(self["width"]), int(self["height"]), self._radius
-        self.create_arc(0, 0, r * 2, r * 2, start=90, extent=90, fill=color, outline=color)
-        self.create_arc(w - r * 2, 0, w, r * 2, start=0, extent=90, fill=color, outline=color)
-        self.create_arc(0, h - r * 2, r * 2, h, start=180, extent=90, fill=color, outline=color)
-        self.create_arc(w - r * 2, h - r * 2, w, h, start=270, extent=90, fill=color, outline=color)
+        self.create_arc(
+            0, 0, r * 2, r * 2, start=90, extent=90, fill=color, outline=color
+        )
+        self.create_arc(
+            w - r * 2, 0, w, r * 2, start=0, extent=90, fill=color, outline=color
+        )
+        self.create_arc(
+            0, h - r * 2, r * 2, h, start=180, extent=90, fill=color, outline=color
+        )
+        self.create_arc(
+            w - r * 2, h - r * 2, w, h, start=270, extent=90, fill=color, outline=color
+        )
         self.create_rectangle(r, 0, w - r, h, fill=color, outline=color)
         self.create_rectangle(0, r, w, h - r, fill=color, outline=color)
         self.create_text(
-            w // 2, h // 2, text=self._text, fill=self._fg, font=self._font, anchor="center"
+            w // 2,
+            h // 2,
+            text=self._text,
+            fill=self._fg,
+            font=self._font,
+            anchor="center",
         )
 
         # ── Interaction ────────────────────────────────────────────────────────

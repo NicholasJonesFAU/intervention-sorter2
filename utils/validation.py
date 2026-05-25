@@ -15,6 +15,7 @@ import pandas as pd
 @dataclass
 class ValidationResult:
     """Encapsulates the outcome of a validation check."""
+
     is_valid: bool
     errors: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
@@ -94,7 +95,9 @@ def validate_required_columns(
     return result
 
 
-def validate_control_file_line(line: str, line_number: int, delimiter: str) -> Tuple[bool, str]:
+def validate_control_file_line(
+    line: str, line_number: int, delimiter: str
+) -> Tuple[bool, str]:
     """
     Validate a single line from the control TXT file.
 
@@ -103,7 +106,7 @@ def validate_control_file_line(line: str, line_number: int, delimiter: str) -> T
     """
     stripped = line.strip()
     if not stripped or stripped.startswith("#"):
-        return True, ""     # blank or comment line — skip silently
+        return True, ""  # blank or comment line — skip silently
 
     parts = stripped.split(delimiter)
     if len(parts) != 2:

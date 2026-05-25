@@ -99,23 +99,27 @@ class Exporter:
         summary_title = self._write_summary(
             wb, metrics, source_files, group_data, group_order, used_tab_names
         )
-        index_entries.append(self._index_entry(
-            summary_title,
-            "Executive summary with source files, key counts, contact coverage, and charts.",
-            "Summary",
-            "",
-        ))
+        index_entries.append(
+            self._index_entry(
+                summary_title,
+                "Executive summary with source files, key counts, contact coverage, and charts.",
+                "Summary",
+                "",
+            )
+        )
 
         # 2. Group tabs, in priority/order from the control file or semester setup
         for tab_name in group_order:
             df = group_data.get(tab_name, pd.DataFrame())
             actual_title = self._write_data_tab(wb, tab_name, df, used_tab_names)
-            index_entries.append(self._index_entry(
-                actual_title,
-                "Assigned students for this intervention group.",
-                "Group",
-                len(df),
-            ))
+            index_entries.append(
+                self._index_entry(
+                    actual_title,
+                    "Assigned students for this intervention group.",
+                    "Group",
+                    len(df),
+                )
+            )
 
         # 3. Unmatched buckets
         for bucket_name, description in [
@@ -124,45 +128,55 @@ class Exporter:
         ]:
             df = group_data.get(bucket_name, pd.DataFrame())
             actual_title = self._write_data_tab(wb, bucket_name, df, used_tab_names)
-            index_entries.append(self._index_entry(
-                actual_title,
-                description,
-                "Unmatched",
-                len(df),
-            ))
+            index_entries.append(
+                self._index_entry(
+                    actual_title,
+                    description,
+                    "Unmatched",
+                    len(df),
+                )
+            )
 
         # 4. Missing Contacts, only when needed
         missing_title, missing_count = self._write_missing_contacts(
             wb, group_data, group_order, used_tab_names
         )
         if missing_title:
-            index_entries.append(self._index_entry(
-                missing_title,
-                "Students without phone or email contact information in the contact report.",
-                "QA",
-                missing_count,
-            ))
+            index_entries.append(
+                self._index_entry(
+                    missing_title,
+                    "Students without phone or email contact information in the contact report.",
+                    "QA",
+                    missing_count,
+                )
+            )
 
         # 5. QA_Log
         qa_title = self._write_qa_log(wb, qa_log, used_tab_names)
-        index_entries.append(self._index_entry(
-            qa_title,
-            "Validation notes, data quality warnings, and processing audit items.",
-            "QA",
-            len(qa_log.entries()),
-        ))
+        index_entries.append(
+            self._index_entry(
+                qa_title,
+                "Validation notes, data quality warnings, and processing audit items.",
+                "QA",
+                len(qa_log.entries()),
+            )
+        )
 
         # 6. Processing_Manifest
         manifest_title = self._write_manifest(wb, metrics, source_files, used_tab_names)
-        index_entries.append(self._index_entry(
-            manifest_title,
-            "Technical run metadata: app version, Python version, platform, inputs, and row counts.",
-            "Manifest",
-            "",
-        ))
+        index_entries.append(
+            self._index_entry(
+                manifest_title,
+                "Technical run metadata: app version, Python version, platform, inputs, and row counts.",
+                "Manifest",
+                "",
+            )
+        )
 
         # 7. Workbook index goes first, after the final sheet names are known
-        self._write_workbook_index(wb, index_entries, metrics, source_files, used_tab_names)
+        self._write_workbook_index(
+            wb, index_entries, metrics, source_files, used_tab_names
+        )
 
         try:
             wb.save(output_path)
@@ -213,17 +227,27 @@ class Exporter:
             ("Assigned", assigned),
             ("Unmatched", f"{unmatched} ({unmatched_pct})"),
             ("Contact Coverage", contact_pct),
-            ("Generated", metrics.get("processing_timestamp") or datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+            (
+                "Generated",
+                metrics.get("processing_timestamp")
+                or datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            ),
         ]
         for col_idx, (label, value) in enumerate(kpis, start=1):
             label_cell = ws.cell(row=3, column=col_idx, value=label)
             value_cell = ws.cell(row=4, column=col_idx, value=value)
             label_cell.fill = PatternFill("solid", fgColor=_argb(HEADER_BLUE))
-            label_cell.font = Font(name="Calibri", size=10, bold=True, color=_argb(WHITE))
-            label_cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            label_cell.font = Font(
+                name="Calibri", size=10, bold=True, color=_argb(WHITE)
+            )
+            label_cell.alignment = Alignment(
+                horizontal="center", vertical="center", wrap_text=True
+            )
             value_cell.fill = PatternFill("solid", fgColor=_argb(LIGHT_BLUE))
             value_cell.font = Font(name="Calibri", size=11, bold=True)
-            value_cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            value_cell.alignment = Alignment(
+                horizontal="center", vertical="center", wrap_text=True
+            )
         ws.row_dimensions[3].height = 24
         ws.row_dimensions[4].height = 30
 
@@ -234,9 +258,13 @@ class Exporter:
             c = ws.cell(row=start_row, column=col_idx, value=header)
             c.fill = PatternFill("solid", fgColor=_argb(HEADER_DARK))
             c.font = Font(name="Calibri", size=10, bold=True, color=_argb(WHITE))
-            c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            c.alignment = Alignment(
+                horizontal="center", vertical="center", wrap_text=True
+            )
 
-        link_font = Font(name="Calibri", size=10, bold=True, color="FF0563C1", underline="single")
+        link_font = Font(
+            name="Calibri", size=10, bold=True, color="FF0563C1", underline="single"
+        )
         body_font = Font(name="Calibri", size=10)
         alt_fill = PatternFill("solid", fgColor=_argb(LIGHT_FILL))
         default_fill = PatternFill("solid", fgColor=_argb(WHITE))
@@ -273,16 +301,24 @@ class Exporter:
 
         # Source file footer
         footer_row = start_row + len(index_entries) + 3
-        ws.cell(footer_row, 1, "Source Files").font = Font(name="Calibri", size=11, bold=True, color=_argb(WHITE))
+        ws.cell(footer_row, 1, "Source Files").font = Font(
+            name="Calibri", size=11, bold=True, color=_argb(WHITE)
+        )
         ws.cell(footer_row, 1).fill = PatternFill("solid", fgColor=_argb(HEADER_GREEN))
         for offset, (label, filename) in enumerate(source_files.items(), start=1):
-            ws.cell(footer_row + offset, 1, label).font = Font(name="Calibri", size=10, bold=True)
-            ws.cell(footer_row + offset, 2, filename).font = Font(name="Calibri", size=10)
+            ws.cell(footer_row + offset, 1, label).font = Font(
+                name="Calibri", size=10, bold=True
+            )
+            ws.cell(footer_row + offset, 2, filename).font = Font(
+                name="Calibri", size=10
+            )
 
         logger.info("Exporter: Workbook_Index tab written.")
         return title
 
-    def _index_entry(self, sheet: str, description: str, sheet_type: str, rows: Any) -> Dict[str, Any]:
+    def _index_entry(
+        self, sheet: str, description: str, sheet_type: str, rows: Any
+    ) -> Dict[str, Any]:
         return {
             "sheet": sheet,
             "description": description,
@@ -317,7 +353,9 @@ class Exporter:
 
         for row_idx, row in enumerate(df_out.itertuples(index=False), start=2):
             for col_idx, value in enumerate(row, start=1):
-                ws.cell(row=row_idx, column=col_idx, value=str(value) if value != "" else "")
+                ws.cell(
+                    row=row_idx, column=col_idx, value=str(value) if value != "" else ""
+                )
 
         apply_data_tab_formatting(ws, OUTPUT_COLUMNS)
         logger.info("Exporter: Tab '%s' written — %d rows.", safe, len(df_out))
@@ -353,7 +391,9 @@ class Exporter:
         total_distinct = self._to_int(metrics.get("total_distinct_students", 0))
         total_assigned = self._to_int(metrics.get("total_assigned", 0))
         total_unmatched = self._to_int(metrics.get("total_unmatched", 0))
-        contact_coverage = self._percent(contact_matches, contact_matches + contact_misses)
+        contact_coverage = self._percent(
+            contact_matches, contact_matches + contact_misses
+        )
         assigned_pct = self._percent(total_assigned, total_distinct)
         unmatched_pct = self._percent(total_unmatched, total_distinct)
 
@@ -362,23 +402,45 @@ class Exporter:
             ("", ""),
             ("Application", f"{APP_NAME} v{APP_VERSION}"),
             ("Processing Timestamp", metrics.get("processing_timestamp", "")),
-            ("Execution Duration", f"{self._to_float(metrics.get('execution_duration', 0)):.2f} seconds"),
+            (
+                "Execution Duration",
+                f"{self._to_float(metrics.get('execution_duration', 0)):.2f} seconds",
+            ),
             ("", ""),
             ("◆  EXECUTIVE KPIS  ◆", ""),
             ("Distinct At-Risk Students", total_distinct),
             ("Assigned to Groups", f"{total_assigned} ({assigned_pct})"),
             ("Unmatched", f"{total_unmatched} ({unmatched_pct})"),
             ("Contact Coverage", contact_coverage),
-            ("Excluded Previously Assigned", metrics.get("excluded_previously_assigned", 0)),
+            (
+                "Excluded Previously Assigned",
+                metrics.get("excluded_previously_assigned", 0),
+            ),
             ("", ""),
             ("◆  INPUT FILE METRICS  ◆", ""),
-            (SUMMARY_LABELS.get("total_input_rows", "Total Input Rows"), metrics.get("total_input_rows", 0)),
-            (SUMMARY_LABELS.get("total_at_risk_rows", "Total At-Risk Rows"), metrics.get("total_at_risk_rows", 0)),
             (
-                SUMMARY_LABELS.get("duplicate_course_rows_removed", "Duplicate Course Rows Removed"),
-                metrics.get("duplicate_course_rows_removed", metrics.get("duplicate_rows_removed", 0)),
+                SUMMARY_LABELS.get("total_input_rows", "Total Input Rows"),
+                metrics.get("total_input_rows", 0),
             ),
-            (SUMMARY_LABELS.get("total_distinct_students", "Distinct At-Risk Students"), total_distinct),
+            (
+                SUMMARY_LABELS.get("total_at_risk_rows", "Total At-Risk Rows"),
+                metrics.get("total_at_risk_rows", 0),
+            ),
+            (
+                SUMMARY_LABELS.get(
+                    "duplicate_course_rows_removed", "Duplicate Course Rows Removed"
+                ),
+                metrics.get(
+                    "duplicate_course_rows_removed",
+                    metrics.get("duplicate_rows_removed", 0),
+                ),
+            ),
+            (
+                SUMMARY_LABELS.get(
+                    "total_distinct_students", "Distinct At-Risk Students"
+                ),
+                total_distinct,
+            ),
             ("", ""),
             ("◆  CONTACT MATCHING  ◆", ""),
             (SUMMARY_LABELS.get("contact_matches", "Contact Matches"), contact_matches),
@@ -393,21 +455,26 @@ class Exporter:
             pct = self._percent(len(df), total_distinct)
             rows.append((f"  {tab_name}", f"{len(df)} ({pct})"))
 
-        rows.extend([
-            ("", ""),
-            ("◆  UNMATCHED BUCKETS  ◆", ""),
-            (
-                SUMMARY_LABELS.get("total_risk_1_2", "Risk 1–2"),
-                len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame())),
-            ),
-            (
-                SUMMARY_LABELS.get("total_risk_3_plus", "Risk 3+"),
-                len(group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame())),
-            ),
-            (SUMMARY_LABELS.get("total_unmatched", "Total Unmatched"), f"{total_unmatched} ({unmatched_pct})"),
-            ("", ""),
-            ("◆  SOURCE FILES  ◆", ""),
-        ])
+        rows.extend(
+            [
+                ("", ""),
+                ("◆  UNMATCHED BUCKETS  ◆", ""),
+                (
+                    SUMMARY_LABELS.get("total_risk_1_2", "Risk 1–2"),
+                    len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame())),
+                ),
+                (
+                    SUMMARY_LABELS.get("total_risk_3_plus", "Risk 3+"),
+                    len(group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame())),
+                ),
+                (
+                    SUMMARY_LABELS.get("total_unmatched", "Total Unmatched"),
+                    f"{total_unmatched} ({unmatched_pct})",
+                ),
+                ("", ""),
+                ("◆  SOURCE FILES  ◆", ""),
+            ]
+        )
 
         for label, fname in source_files.items():
             rows.append((label, fname))
@@ -491,7 +558,9 @@ class Exporter:
             cell = ws.cell(1, c_idx, col)
             cell.fill = make_header_fill(HEADER_ORANGE)
             cell.font = make_header_font()
-            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            cell.alignment = Alignment(
+                horizontal="center", vertical="center", wrap_text=True
+            )
 
         body_font = make_body_font()
         alt_fill = PatternFill("solid", fgColor=_argb(LIGHT_BLUE))
@@ -518,7 +587,9 @@ class Exporter:
     # QA Log tab
     # ------------------------------------------------------------------
 
-    def _write_qa_log(self, wb: Workbook, qa_log: QALog, used_tab_names: List[str]) -> str:
+    def _write_qa_log(
+        self, wb: Workbook, qa_log: QALog, used_tab_names: List[str]
+    ) -> str:
         safe = safe_excel_tab_name(QA_LOG_TAB, used_tab_names)
         used_tab_names.append(safe)
         ws = wb.create_sheet(title=safe)
@@ -559,7 +630,10 @@ class Exporter:
             ("Python Version", sys.version.split()[0]),
             ("Platform", platform.platform()),
             ("Processing Timestamp", metrics.get("processing_timestamp", "")),
-            ("Execution Duration (s)", f"{self._to_float(metrics.get('execution_duration', 0)):.2f}"),
+            (
+                "Execution Duration (s)",
+                f"{self._to_float(metrics.get('execution_duration', 0)):.2f}",
+            ),
             ("", ""),
             ("◆  SOURCE FILES  ◆", ""),
         ]
@@ -567,22 +641,36 @@ class Exporter:
         for label, fname in source_files.items():
             rows.append((label, fname))
 
-        rows.extend([
-            ("", ""),
-            ("◆  ROW COUNTS  ◆", ""),
-            ("Total Input Rows", metrics.get("total_input_rows", 0)),
-            ("Total At-Risk Rows", metrics.get("total_at_risk_rows", 0)),
-            ("Duplicate Course Rows Removed", metrics.get("duplicate_course_rows_removed", metrics.get("duplicate_rows_removed", 0))),
-            ("Distinct At-Risk Students", metrics.get("total_distinct_students", 0)),
-            ("Assigned to Groups", metrics.get("total_assigned", 0)),
-            ("Unmatched", metrics.get("total_unmatched", 0)),
-            ("Contact Matches", metrics.get("contact_matches", 0)),
-            ("Contact Misses", metrics.get("contact_misses", 0)),
-            ("Excluded Previously Assigned", metrics.get("excluded_previously_assigned", 0)),
-            ("", ""),
-            ("◆  OUTPUT FILE  ◆", ""),
-            ("Output File", metrics.get("output_filename", "")),
-        ])
+        rows.extend(
+            [
+                ("", ""),
+                ("◆  ROW COUNTS  ◆", ""),
+                ("Total Input Rows", metrics.get("total_input_rows", 0)),
+                ("Total At-Risk Rows", metrics.get("total_at_risk_rows", 0)),
+                (
+                    "Duplicate Course Rows Removed",
+                    metrics.get(
+                        "duplicate_course_rows_removed",
+                        metrics.get("duplicate_rows_removed", 0),
+                    ),
+                ),
+                (
+                    "Distinct At-Risk Students",
+                    metrics.get("total_distinct_students", 0),
+                ),
+                ("Assigned to Groups", metrics.get("total_assigned", 0)),
+                ("Unmatched", metrics.get("total_unmatched", 0)),
+                ("Contact Matches", metrics.get("contact_matches", 0)),
+                ("Contact Misses", metrics.get("contact_misses", 0)),
+                (
+                    "Excluded Previously Assigned",
+                    metrics.get("excluded_previously_assigned", 0),
+                ),
+                ("", ""),
+                ("◆  OUTPUT FILE  ◆", ""),
+                ("Output File", metrics.get("output_filename", "")),
+            ]
+        )
 
         for r_idx, (label, value) in enumerate(rows, start=1):
             ws.cell(row=r_idx, column=1, value=label)

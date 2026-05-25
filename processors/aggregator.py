@@ -24,14 +24,24 @@ class Aggregator:
             logger.warning("Aggregator: Input DataFrame is empty.")
             return self._empty_output()
 
-        for col in ["Student ID", "Student Name", "Course", "Course Number",
-                    "Current Grade", "Absences", "Alert Reasons", "Comments"]:
+        for col in [
+            "Student ID",
+            "Student Name",
+            "Course",
+            "Course Number",
+            "Current Grade",
+            "Absences",
+            "Alert Reasons",
+            "Comments",
+        ]:
             if col not in df.columns:
                 df[col] = ""
 
-        result = df.groupby("Student ID", sort=False).apply(
-            self._aggregate_student, include_groups=False
-        ).reset_index()
+        result = (
+            df.groupby("Student ID", sort=False)
+            .apply(self._aggregate_student, include_groups=False)
+            .reset_index()
+        )
 
         logger.info("Aggregator: Complete. %d distinct students.", len(result))
         return result
@@ -45,9 +55,9 @@ class Aggregator:
 
         # Four parallel newline-delimited lists — one entry per course row
         course_numbers = []
-        course_names   = []
-        grades         = []
-        absences       = []
+        course_names = []
+        grades = []
+        absences = []
 
         for _, row in group.iterrows():
             course_numbers.append(str(row.get("Course Number", "")).strip())
@@ -63,17 +73,21 @@ class Aggregator:
                 except (ValueError, TypeError):
                     absences.append(str(raw_abs).strip())
 
-        risk_course_count = len(set(
-            (cn or nm) for cn, nm in zip(course_numbers, course_names) if cn or nm
-        ))
+        risk_course_count = len(
+            set((cn or nm) for cn, nm in zip(course_numbers, course_names) if cn or nm)
+        )
 
         absences_str = delim.join(absences)
 
         alert_reasons = deduplicate_multiline_values(
-            delim.join(str(v) for v in group["Alert Reasons"].fillna("") if str(v).strip()), delim
+            delim.join(
+                str(v) for v in group["Alert Reasons"].fillna("") if str(v).strip()
+            ),
+            delim,
         )
         comments_raw = deduplicate_multiline_values(
-            delim.join(str(v) for v in group["Comments"].fillna("") if str(v).strip()), delim
+            delim.join(str(v) for v in group["Comments"].fillna("") if str(v).strip()),
+            delim,
         )
         # Truncate each comment line to 120 characters
         comments = delim.join(
@@ -81,20 +95,31 @@ class Aggregator:
             for line in comments_raw.split(delim)
         )
 
-        return pd.Series({
-            "Student Name":     student_name,
-            "Risk Course Count": risk_course_count,
-            "Absences":         absences_str,
-            "Course Numbers":   delim.join(course_numbers),
-            "Courses":          delim.join(course_names),
-            "Grades":           delim.join(grades),
-            "Alert Reasons":    alert_reasons,
-            "Comments":         comments,
-        })
+        return pd.Series(
+            {
+                "Student Name": student_name,
+                "Risk Course Count": risk_course_count,
+                "Absences": absences_str,
+                "Course Numbers": delim.join(course_numbers),
+                "Courses": delim.join(course_names),
+                "Grades": delim.join(grades),
+                "Alert Reasons": alert_reasons,
+                "Comments": comments,
+            }
+        )
 
     @staticmethod
     def _empty_output() -> pd.DataFrame:
-        return pd.DataFrame(columns=[
-            "Student ID", "Student Name", "Risk Course Count", "Absences",
-            "Course Numbers", "Courses", "Grades", "Alert Reasons", "Comments",
-        ])
+        return pd.DataFrame(
+            columns=[
+                "Student ID",
+                "Student Name",
+                "Risk Course Count",
+                "Absences",
+                "Course Numbers",
+                "Courses",
+                "Grades",
+                "Alert Reasons",
+                "Comments",
+            ]
+        )

@@ -269,7 +269,8 @@ class SemesterManager:
         self._save()
 
         logger.info(
-            "SemesterManager: Recorded run — '%s' / '%s' | " "Processed: %d | Assigned: %d",
+            "SemesterManager: Recorded run — '%s' / '%s' | "
+            "Processed: %d | Assigned: %d",
             sem.name,
             checkpoint_name,
             students_processed,
@@ -351,7 +352,9 @@ class SemesterManager:
 
     def history(self) -> List[Semester]:
         """Return all non-active semesters in reverse chronological order."""
-        return [s for s in reversed(self._semesters) if s.status != SEMESTER_STATUS_ACTIVE]
+        return [
+            s for s in reversed(self._semesters) if s.status != SEMESTER_STATUS_ACTIVE
+        ]
 
     def all_semesters(self) -> List[Semester]:
         return list(reversed(self._semesters))
@@ -389,5 +392,7 @@ class SemesterManager:
             ASSIGNED_STUDENTS_PATH.unlink()
             return count
         except Exception as exc:
-            logger.error("SemesterManager: Could not clear assigned_students.txt: %s", exc)
+            logger.error(
+                "SemesterManager: Could not clear assigned_students.txt: %s", exc
+            )
             return 0

@@ -29,7 +29,9 @@ class ContactProcessor:
         self._contact_misses: int = 0
 
     def load(self, file_path: Path) -> None:
-        logger.info("ContactProcessor: Loading contact report from '%s'", file_path.name)
+        logger.info(
+            "ContactProcessor: Loading contact report from '%s'", file_path.name
+        )
 
         try:
             df_raw = pd.read_excel(
@@ -69,12 +71,10 @@ class ContactProcessor:
         df["Phone Number"] = self._resolve_phone(df)
 
         found = [
-            c for c in get_settings().phone_fallback_columns
-            if c in df_raw.columns
+            c for c in get_settings().phone_fallback_columns if c in df_raw.columns
         ]
         missing = [
-            c for c in get_settings().phone_fallback_columns
-            if c not in df_raw.columns
+            c for c in get_settings().phone_fallback_columns if c not in df_raw.columns
         ]
 
         if found:

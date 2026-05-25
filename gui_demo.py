@@ -16,7 +16,8 @@ def load_progress_demo_files(app) -> None:
             group_files/
     """
     import sys
-    if getattr(sys, 'frozen', False):
+
+    if getattr(sys, "frozen", False):
         # --onefile: bundled assets are in sys._MEIPASS (temp extraction dir)
         repo_root = Path(sys._MEIPASS)
     else:
@@ -26,13 +27,13 @@ def load_progress_demo_files(app) -> None:
     output_dir = sample_dir / "demo_output"
 
     # Accept either CSV or xlsx for the progress report
-    progress_csv  = sample_dir / "progress_report_sample.csv"
+    progress_csv = sample_dir / "progress_report_sample.csv"
     progress_xlsx = sample_dir / "progress_report_sample.xlsx"
     progress_file = progress_csv if progress_csv.exists() else progress_xlsx
 
     demo_paths = {
-        "Progress Report":    progress_file,
-        "Contact Report":     sample_dir / "contact_report_sample.xlsx",
+        "Progress Report": progress_file,
+        "Contact Report": sample_dir / "contact_report_sample.xlsx",
         "Group Control File": sample_dir / "group_control.txt",
         "Group Files Folder": group_dir,
     }

@@ -14,6 +14,7 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,14 +24,14 @@ from utils.excel_utils import _argb
 
 logger = logging.getLogger("intervention_sorter")
 
-COLOR_BG      = "#F4F6FB"
+COLOR_BG = "#F4F6FB"
 COLOR_PRIMARY = "#1F3864"
-COLOR_ACCENT  = "#2F5496"
-COLOR_GREEN   = "#2E7D32"
-COLOR_RED     = "#C62828"
-COLOR_AMBER   = "#F57F17"
-COLOR_TEAL    = "#00695C"
-COLOR_GRAY    = "#ECEFF1"
+COLOR_ACCENT = "#2F5496"
+COLOR_GREEN = "#2E7D32"
+COLOR_RED = "#C62828"
+COLOR_AMBER = "#F57F17"
+COLOR_TEAL = "#00695C"
+COLOR_GRAY = "#ECEFF1"
 
 CHART_W = 400
 CHART_H = 260
@@ -55,8 +56,7 @@ class SummaryEnhancer:
         start_row += 8
 
         group_counts = {
-            tab: len(group_data.get(tab, pd.DataFrame()))
-            for tab in group_order
+            tab: len(group_data.get(tab, pd.DataFrame())) for tab in group_order
         }
 
         group_counts[UNMATCHED_LOW_TAB] = len(
@@ -67,10 +67,7 @@ class SummaryEnhancer:
             group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame())
         )
 
-        group_counts = {
-            k: v for k, v in group_counts.items()
-            if v > 0
-        }
+        group_counts = {k: v for k, v in group_counts.items() if v > 0}
 
         if group_counts:
             img = self._make_group_bar(group_counts)
@@ -97,10 +94,7 @@ class SummaryEnhancer:
             ignore_index=True,
         )
 
-        if (
-            not all_students.empty
-            and "Risk Course Count" in all_students.columns
-        ):
+        if not all_students.empty and "Risk Course Count" in all_students.columns:
             img3 = self._make_risk_distribution(all_students)
             ws.add_image(img3, f"E{start_row}")
 
@@ -357,17 +351,11 @@ class SummaryEnhancer:
 
         counts = df["Risk Course Count"].value_counts().sort_index()
 
-        labels = [
-            f"{i} course{'s' if i != 1 else ''}"
-            for i in counts.index
-        ]
+        labels = [f"{i} course{'s' if i != 1 else ''}" for i in counts.index]
 
         values = counts.values.tolist()
 
-        colors = [
-            COLOR_AMBER if i < 3 else COLOR_RED
-            for i in counts.index
-        ]
+        colors = [COLOR_AMBER if i < 3 else COLOR_RED for i in counts.index]
 
         fig, ax = plt.subplots(
             figsize=(5.2, 2.9),

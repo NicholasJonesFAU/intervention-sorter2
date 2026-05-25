@@ -23,6 +23,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -34,22 +35,22 @@ from utils.excel_utils import _argb
 logger = logging.getLogger("intervention_sorter")
 
 # Chart color palette
-COLOR_SUBMITTED     = "#2E86AB"
+COLOR_SUBMITTED = "#2E86AB"
 COLOR_NOT_SUBMITTED = "#E84855"
-COLOR_BG            = "#F4F6FB"
-COLOR_WHITE         = "FFFFFF"
-COLOR_LIGHT_BLUE    = "DCE6F1"
-COLOR_LIGHT_GRAY    = "ECEFF1"
-COLOR_GREEN         = "2E7D32"
-COLOR_AMBER         = "F57F17"
-COLOR_RED           = "C62828"
+COLOR_BG = "#F4F6FB"
+COLOR_WHITE = "FFFFFF"
+COLOR_LIGHT_BLUE = "DCE6F1"
+COLOR_LIGHT_GRAY = "ECEFF1"
+COLOR_GREEN = "2E7D32"
+COLOR_AMBER = "F57F17"
+COLOR_RED = "C62828"
 
-HEADER_COLOR        = "1F3864"
-COLLEGE_HEADER      = "2F5496"
-DEPT_HEADER         = "375623"
-PROFESSOR_HEADER    = "843C0C"
-DOWNLOAD_HEADER     = "4A235A"
-INDEX_HEADER        = "1F3864"
+HEADER_COLOR = "1F3864"
+COLLEGE_HEADER = "2F5496"
+DEPT_HEADER = "375623"
+PROFESSOR_HEADER = "843C0C"
+DOWNLOAD_HEADER = "4A235A"
+INDEX_HEADER = "1F3864"
 
 THIN_WHITE_BORDER = Border(
     left=Side(style="thin", color=_argb("FFFFFF")),
@@ -74,16 +75,19 @@ class ReportStatusExporter:
 
         overall = processor.overall_stats()
         df_college = processor.by_college()
-        df_dept    = processor.by_department()
-        df_prof    = processor.by_professor()
-        df_dl      = processor.faculty_download()
+        df_dept = processor.by_department()
+        df_prof = processor.by_professor()
+        df_dl = processor.faculty_download()
 
         self._write_index(
             wb=wb,
             source_filename=source_filename,
             overall=overall,
             sheet_rows=[
-                ("Overview", "Executive completion summary, KPI cards, and college rollup."),
+                (
+                    "Overview",
+                    "Executive completion summary, KPI cards, and college rollup.",
+                ),
                 ("By_College", "Completion counts and rates grouped by college."),
                 ("By_Department", "Completion counts and rates grouped by department."),
                 ("By_Professor", "Faculty-level completion detail."),
@@ -137,7 +141,9 @@ class ReportStatusExporter:
 
         r = 3
         for label, value in metadata:
-            ws.cell(r, 1, label).font = Font(name="Calibri", size=10, bold=True, color=_argb(HEADER_COLOR))
+            ws.cell(r, 1, label).font = Font(
+                name="Calibri", size=10, bold=True, color=_argb(HEADER_COLOR)
+            )
             ws.cell(r, 2, value).font = Font(name="Calibri", size=10)
             r += 1
 
@@ -145,7 +151,9 @@ class ReportStatusExporter:
         headers = ["Sheet", "Description", "Rows / Scope"]
         for idx, header in enumerate(headers, start=1):
             cell = ws.cell(r, idx, header)
-            cell.font = Font(name="Calibri", size=10, bold=True, color=_argb(COLOR_WHITE))
+            cell.font = Font(
+                name="Calibri", size=10, bold=True, color=_argb(COLOR_WHITE)
+            )
             cell.fill = PatternFill("solid", fgColor=_argb(INDEX_HEADER))
             cell.alignment = Alignment(horizontal="center")
             cell.border = THIN_WHITE_BORDER
@@ -170,7 +178,9 @@ class ReportStatusExporter:
 
             ws.cell(r, 3, scope)
 
-            fill = PatternFill("solid", fgColor=_argb(COLOR_LIGHT_BLUE if r % 2 == 0 else COLOR_WHITE))
+            fill = PatternFill(
+                "solid", fgColor=_argb(COLOR_LIGHT_BLUE if r % 2 == 0 else COLOR_WHITE)
+            )
             for col in range(1, 4):
                 ws.cell(r, col).fill = fill
                 ws.cell(r, col).alignment = Alignment(vertical="top", wrap_text=True)
@@ -203,9 +213,13 @@ class ReportStatusExporter:
         ws.row_dimensions[1].height = 32
 
         # Metadata
-        ws.cell(2, 1, "Source File").font = Font(name="Calibri", size=10, bold=True, color=_argb(HEADER_COLOR))
+        ws.cell(2, 1, "Source File").font = Font(
+            name="Calibri", size=10, bold=True, color=_argb(HEADER_COLOR)
+        )
         ws.cell(2, 2, source_filename)
-        ws.cell(3, 1, "Generated").font = Font(name="Calibri", size=10, bold=True, color=_argb(HEADER_COLOR))
+        ws.cell(3, 1, "Generated").font = Font(
+            name="Calibri", size=10, bold=True, color=_argb(HEADER_COLOR)
+        )
         ws.cell(3, 2, datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
         # KPI cards
@@ -222,24 +236,39 @@ class ReportStatusExporter:
 
         # College summary table below
         start_row = 17
-        ws.merge_cells(start_row=start_row, start_column=1, end_row=start_row, end_column=5)
+        ws.merge_cells(
+            start_row=start_row, start_column=1, end_row=start_row, end_column=5
+        )
         section = ws.cell(start_row, 1)
         section.value = "Completion by College"
-        section.font = Font(name="Calibri", size=11, bold=True, color=_argb(COLOR_WHITE))
+        section.font = Font(
+            name="Calibri", size=11, bold=True, color=_argb(COLOR_WHITE)
+        )
         section.fill = PatternFill("solid", fgColor=_argb(COLLEGE_HEADER))
         section.alignment = Alignment(horizontal="center")
 
-        headers = ["College", "Total Sections", "Submitted", "Not Submitted", "Completion %"]
+        headers = [
+            "College",
+            "Total Sections",
+            "Submitted",
+            "Not Submitted",
+            "Completion %",
+        ]
         for c_idx, h in enumerate(headers, 1):
             cell = ws.cell(start_row + 1, c_idx, h)
-            cell.font = Font(name="Calibri", size=10, bold=True, color=_argb(COLOR_WHITE))
+            cell.font = Font(
+                name="Calibri", size=10, bold=True, color=_argb(COLOR_WHITE)
+            )
             cell.fill = PatternFill("solid", fgColor=_argb(COLLEGE_HEADER))
             cell.alignment = Alignment(horizontal="center")
             cell.border = THIN_WHITE_BORDER
 
         for r_idx, row in df_college.iterrows():
             excel_row = start_row + 2 + r_idx
-            fill = PatternFill("solid", fgColor=_argb(COLOR_LIGHT_BLUE if r_idx % 2 == 0 else COLOR_WHITE))
+            fill = PatternFill(
+                "solid",
+                fgColor=_argb(COLOR_LIGHT_BLUE if r_idx % 2 == 0 else COLOR_WHITE),
+            )
             values = [
                 row["College"],
                 row["Total Sections"],
@@ -274,24 +303,42 @@ class ReportStatusExporter:
             ("Total Sections", overall.get("total_sections", 0), HEADER_COLOR),
             ("Submitted", overall.get("submitted", 0), COLOR_GREEN),
             ("Not Submitted", overall.get("not_submitted", 0), COLOR_RED),
-            ("Completion", f"{overall.get('completion_pct', 0)}%", self._completion_color(overall.get("completion_pct", 0))),
+            (
+                "Completion",
+                f"{overall.get('completion_pct', 0)}%",
+                self._completion_color(overall.get("completion_pct", 0)),
+            ),
         ]
 
         col = 1
         for label, value, color in cards:
-            ws.merge_cells(start_row=start_row, start_column=col, end_row=start_row, end_column=col + 1)
-            ws.merge_cells(start_row=start_row + 1, start_column=col, end_row=start_row + 2, end_column=col + 1)
+            ws.merge_cells(
+                start_row=start_row,
+                start_column=col,
+                end_row=start_row,
+                end_column=col + 1,
+            )
+            ws.merge_cells(
+                start_row=start_row + 1,
+                start_column=col,
+                end_row=start_row + 2,
+                end_column=col + 1,
+            )
 
             label_cell = ws.cell(start_row, col)
             label_cell.value = label
-            label_cell.font = Font(name="Calibri", size=10, bold=True, color=_argb(COLOR_WHITE))
+            label_cell.font = Font(
+                name="Calibri", size=10, bold=True, color=_argb(COLOR_WHITE)
+            )
             label_cell.fill = PatternFill("solid", fgColor=_argb(color))
             label_cell.alignment = Alignment(horizontal="center", vertical="center")
             label_cell.border = THIN_WHITE_BORDER
 
             value_cell = ws.cell(start_row + 1, col)
             value_cell.value = value
-            value_cell.font = Font(name="Calibri", size=16, bold=True, color=_argb(HEADER_COLOR))
+            value_cell.font = Font(
+                name="Calibri", size=16, bold=True, color=_argb(HEADER_COLOR)
+            )
             value_cell.fill = PatternFill("solid", fgColor=_argb(COLOR_LIGHT_GRAY))
             value_cell.alignment = Alignment(horizontal="center", vertical="center")
             value_cell.border = THIN_WHITE_BORDER
@@ -401,7 +448,9 @@ class ReportStatusExporter:
         # Title row
         ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=max_col)
         title_cell = ws.cell(1, 1, title)
-        title_cell.font = Font(name="Calibri", size=13, bold=True, color=_argb(COLOR_WHITE))
+        title_cell.font = Font(
+            name="Calibri", size=13, bold=True, color=_argb(COLOR_WHITE)
+        )
         title_cell.fill = PatternFill("solid", fgColor=_argb(header_color))
         title_cell.alignment = Alignment(horizontal="center", vertical="center")
         ws.row_dimensions[1].height = 26
@@ -409,15 +458,21 @@ class ReportStatusExporter:
         # Headers
         for c_idx, col in enumerate(df.columns, 1):
             cell = ws.cell(2, c_idx, col)
-            cell.font = Font(name="Calibri", size=10, bold=True, color=_argb(COLOR_WHITE))
+            cell.font = Font(
+                name="Calibri", size=10, bold=True, color=_argb(COLOR_WHITE)
+            )
             cell.fill = PatternFill("solid", fgColor=_argb(header_color))
-            cell.alignment = Alignment(horizontal="center" if c_idx > 2 else "left", vertical="center")
+            cell.alignment = Alignment(
+                horizontal="center" if c_idx > 2 else "left", vertical="center"
+            )
             cell.border = THIN_WHITE_BORDER
 
         # Freeze and filter
         ws.freeze_panes = "A3"
         if len(df.columns) > 0:
-            ws.auto_filter.ref = f"A2:{get_column_letter(len(df.columns))}{max(ws.max_row, len(df) + 2)}"
+            ws.auto_filter.ref = (
+                f"A2:{get_column_letter(len(df.columns))}{max(ws.max_row, len(df) + 2)}"
+            )
 
         alt_fill = PatternFill("solid", fgColor=_argb(COLOR_LIGHT_BLUE))
         white_fill = PatternFill("solid", fgColor=_argb(COLOR_WHITE))
@@ -448,12 +503,18 @@ class ReportStatusExporter:
                 val = ws.cell(r_idx, c_idx).value
                 if val:
                     max_len = max(max_len, len(str(val)))
-            ws.column_dimensions[get_column_letter(c_idx)].width = min(max(max_len + 3, 12), 50)
+            ws.column_dimensions[get_column_letter(c_idx)].width = min(
+                max(max_len + 3, 12), 50
+            )
 
         # Metadata/footer
         footer_row = ws.max_row + 2
-        ws.cell(footer_row, 1, f"Generated {datetime.now().strftime('%m/%d/%Y %I:%M %p')}")
-        ws.cell(footer_row, 1).font = Font(name="Calibri", size=9, italic=True, color=_argb("666666"))
+        ws.cell(
+            footer_row, 1, f"Generated {datetime.now().strftime('%m/%d/%Y %I:%M %p')}"
+        )
+        ws.cell(footer_row, 1).font = Font(
+            name="Calibri", size=9, italic=True, color=_argb("666666")
+        )
 
     # ------------------------------------------------------------------
     # Styling helpers
@@ -522,7 +583,9 @@ class ReportStatusExporter:
         fig, ax = plt.subplots(figsize=(4.4, 3.3), facecolor=COLOR_BG)
         ax.set_facecolor(COLOR_BG)
 
-        sizes = [submitted, not_submitted] if (submitted + not_submitted) > 0 else [1, 0]
+        sizes = (
+            [submitted, not_submitted] if (submitted + not_submitted) > 0 else [1, 0]
+        )
         colors = [COLOR_SUBMITTED, COLOR_NOT_SUBMITTED]
 
         ax.pie(
@@ -553,7 +616,9 @@ class ReportStatusExporter:
 
         legend = [
             mpatches.Patch(color=COLOR_SUBMITTED, label=f"Submitted ({submitted:,})"),
-            mpatches.Patch(color=COLOR_NOT_SUBMITTED, label=f"Not Submitted ({not_submitted:,})"),
+            mpatches.Patch(
+                color=COLOR_NOT_SUBMITTED, label=f"Not Submitted ({not_submitted:,})"
+            ),
         ]
 
         ax.legend(

@@ -197,7 +197,9 @@ def rebuild_groups_list(app):
                 command=lambda idx=i: app._on_move_group(idx, -1),
             ).pack(side="left", padx=(0, 2))
         else:
-            tk.Frame(action_frame, bg=row.cget("bg"), width=32).pack(side="left", padx=(0, 2))
+            tk.Frame(action_frame, bg=row.cget("bg"), width=32).pack(
+                side="left", padx=(0, 2)
+            )
 
         if i < len(groups) - 1:
             RoundedButton(
@@ -210,7 +212,9 @@ def rebuild_groups_list(app):
                 command=lambda idx=i: app._on_move_group(idx, 1),
             ).pack(side="left", padx=(0, 6))
         else:
-            tk.Frame(action_frame, bg=row.cget("bg"), width=32).pack(side="left", padx=(0, 6))
+            tk.Frame(action_frame, bg=row.cget("bg"), width=32).pack(
+                side="left", padx=(0, 6)
+            )
 
         RoundedButton(
             action_frame,
@@ -236,7 +240,9 @@ def on_add_group(app):
     sm = SemesterManager()
 
     if not sm.has_active_semester():
-        messagebox.showwarning("No Active Semester", "Start a semester before adding groups.")
+        messagebox.showwarning(
+            "No Active Semester", "Start a semester before adding groups."
+        )
         return
 
     dialog = tk.Toplevel(app)
@@ -398,7 +404,9 @@ def on_delete_group(app, index):
     if 0 <= index < len(groups):
         name = groups[index]["name"]
 
-        if not messagebox.askyesno("Remove Group", f"Remove '{name}' from this semester?"):
+        if not messagebox.askyesno(
+            "Remove Group", f"Remove '{name}' from this semester?"
+        ):
             return
 
         groups.pop(index)
@@ -410,13 +418,17 @@ def on_copy_previous_groups(app):
     sm = SemesterManager()
 
     if not sm.has_active_semester():
-        messagebox.showwarning("No Active Semester", "Start a semester before copying groups.")
+        messagebox.showwarning(
+            "No Active Semester", "Start a semester before copying groups."
+        )
         return
 
     prev = sm.get_previous_semester_groups()
 
     if not prev:
-        messagebox.showinfo("No Previous Groups", "No previous semester has groups configured.")
+        messagebox.showinfo(
+            "No Previous Groups", "No previous semester has groups configured."
+        )
         return
 
     existing = sm.get_groups()
@@ -557,7 +569,9 @@ def on_complete_semester(app):
                     if "Progress Report 1" in output_files
                     else None
                 ),
-                mid_path=Path(output_files["Midterm"]) if "Midterm" in output_files else None,
+                mid_path=(
+                    Path(output_files["Midterm"]) if "Midterm" in output_files else None
+                ),
                 pr2_path=(
                     Path(output_files["Progress Report 2"])
                     if "Progress Report 2" in output_files
@@ -570,7 +584,8 @@ def on_complete_semester(app):
         except Exception as exc:
             if not messagebox.askyesno(
                 "Report Error",
-                f"Could not generate master report:\n{exc}\n\n" "Complete semester anyway?",
+                f"Could not generate master report:\n{exc}\n\n"
+                "Complete semester anyway?",
             ):
                 return
 
