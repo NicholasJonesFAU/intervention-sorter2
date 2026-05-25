@@ -68,10 +68,7 @@ def refresh_semester_tab(app):
     app._history_tree.delete(*app._history_tree.get_children())
 
     for s in sm.all_semesters():
-<<<<<<< HEAD
 
-=======
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         def cp_val(name):
             cp = s.get_checkpoint(name)
             if cp.status == CHECKPOINT_STATUS_COMPLETE:
@@ -489,12 +486,7 @@ def on_mark_checkpoint_complete(app, checkpoint_name):
     if cp.run_count == 0:
         if not messagebox.askyesno(
             "Mark Complete",
-<<<<<<< HEAD
             f"'{checkpoint_name}' has no runs recorded.\n" "Mark it complete anyway?",
-=======
-            f"'{checkpoint_name}' has no runs recorded.\n"
-            "Mark it complete anyway?",
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         ):
             return
 
@@ -560,7 +552,6 @@ def on_complete_semester(app):
 
             gen = SeasonReportGenerator()
             gen.generate(
-<<<<<<< HEAD
                 pr1_path=(
                     Path(output_files["Progress Report 1"])
                     if "Progress Report 1" in output_files
@@ -572,17 +563,6 @@ def on_complete_semester(app):
                     if "Progress Report 2" in output_files
                     else None
                 ),
-=======
-                pr1_path=Path(output_files["Progress Report 1"])
-                if "Progress Report 1" in output_files
-                else None,
-                mid_path=Path(output_files["Midterm"])
-                if "Midterm" in output_files
-                else None,
-                pr2_path=Path(output_files["Progress Report 2"])
-                if "Progress Report 2" in output_files
-                else None,
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                 output_path=out_path,
                 season_name=sem.name,
             )
@@ -590,12 +570,7 @@ def on_complete_semester(app):
         except Exception as exc:
             if not messagebox.askyesno(
                 "Report Error",
-<<<<<<< HEAD
                 f"Could not generate master report:\n{exc}\n\n" "Complete semester anyway?",
-=======
-                f"Could not generate master report:\n{exc}\n\n"
-                "Complete semester anyway?",
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
             ):
                 return
 
@@ -633,11 +608,5 @@ def on_reset_semester(app):
 
     messagebox.showinfo(
         "Semester Reset",
-<<<<<<< HEAD
         f"Semester '{sem.name}' has been reset.\n" "Start a new semester when ready.",
     )
-=======
-        f"Semester '{sem.name}' has been reset.\n"
-        "Start a new semester when ready.",
-    )
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479

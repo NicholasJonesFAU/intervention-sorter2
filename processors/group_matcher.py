@@ -36,10 +36,7 @@ logger = logging.getLogger("intervention_sorter")
 @dataclass
 class GroupDefinition:
     """Represents one entry from the control TXT file."""
-<<<<<<< HEAD
 
-=======
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
     tab_name: str
     filename: str
     student_ids: set = field(default_factory=set)
@@ -85,24 +82,11 @@ class GroupMatcher:
 
         # Filter out skipped groups before loading files
         if self._skip_groups:
-<<<<<<< HEAD
             raw_groups = [(tab, fname) for tab, fname in raw_groups if tab not in self._skip_groups]
 
         self._groups = self._load_group_files(raw_groups, group_dir)
 
         logger.info("GroupMatcher: %d groups loaded from control file.", len(self._groups))
-=======
-            raw_groups = [
-                (tab, fname) for tab, fname in raw_groups
-                if tab not in self._skip_groups
-            ]
-
-        self._groups = self._load_group_files(raw_groups, group_dir)
-
-        logger.info(
-            "GroupMatcher: %d groups loaded from control file.", len(self._groups)
-        )
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
         # Detect cross-group duplicates
         self._audit_cross_group_duplicates()
@@ -126,13 +110,7 @@ class GroupMatcher:
 
         for group in self._groups:
             if remaining.empty:
-<<<<<<< HEAD
                 logger.info("GroupMatcher: All students assigned. Skipping remaining groups.")
-=======
-                logger.info(
-                    "GroupMatcher: All students assigned. Skipping remaining groups."
-                )
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                 result[group.safe_tab_name] = pd.DataFrame(
                     columns=students_df.columns.tolist()
                     + ["Matched Group", "Match Source", "Processing Notes"]
@@ -186,10 +164,6 @@ class GroupMatcher:
             logger.warning("GroupMatcher: Could not read group names: %s", exc)
             return []
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
     def load_from_semester_groups(
         self,
         groups: list,
@@ -207,26 +181,12 @@ class GroupMatcher:
             skip_groups: Set of group names to skip (students fall to buckets).
         """
         self._skip_groups = set(skip_groups) if skip_groups else set()
-<<<<<<< HEAD
         logger.info("GroupMatcher: Loading %d groups from semester configuration.", len(groups))
-=======
-        logger.info(
-            "GroupMatcher: Loading %d groups from semester configuration.", len(groups)
-        )
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         if self._skip_groups:
             logger.info("GroupMatcher: Skipping groups: %s", self._skip_groups)
 
         # Build (tab_name, full_path) pairs, honouring skip list
-<<<<<<< HEAD
         raw = [(g["name"], g["file_path"]) for g in groups if g["name"] not in self._skip_groups]
-=======
-        raw = [
-            (g["name"], g["file_path"])
-            for g in groups
-            if g["name"] not in self._skip_groups
-        ]
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
         self._groups = self._load_group_files_by_path(raw)
         self._audit_cross_group_duplicates()
@@ -288,13 +248,9 @@ class GroupMatcher:
             groups.append(group_def)
             logger.info(
                 "GroupMatcher: Loaded group '%s' — %d IDs from '%s'",
-<<<<<<< HEAD
                 tab_name,
                 len(ids),
                 file_path.name,
-=======
-                tab_name, len(ids), file_path.name,
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
             )
 
         return groups
@@ -318,37 +274,19 @@ class GroupMatcher:
             except (UnicodeDecodeError, UnicodeError):
                 continue
             except Exception as exc:
-<<<<<<< HEAD
                 raise RuntimeError(f"Cannot read control file '{path.name}': {exc}") from exc
-=======
-                raise RuntimeError(
-                    f"Cannot read control file '{path.name}': {exc}"
-                ) from exc
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         raise RuntimeError(
             f"Cannot decode control file '{path.name}'. Tried encodings: {CONTROL_FILE_ENCODINGS}"
         )
 
-<<<<<<< HEAD
     def _parse_control_lines(self, lines: List[str], source: str) -> List[Tuple[str, str]]:
-=======
-    def _parse_control_lines(
-        self, lines: List[str], source: str
-    ) -> List[Tuple[str, str]]:
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         """Parse lines into (tab_name, filename) tuples."""
         results = []
         for i, line in enumerate(lines, start=1):
             stripped = line.strip()
             if not stripped or stripped.startswith("#"):
                 continue
-<<<<<<< HEAD
             is_valid, error = validate_control_file_line(stripped, i, CONTROL_FILE_DELIMITER)
-=======
-            is_valid, error = validate_control_file_line(
-                stripped, i, CONTROL_FILE_DELIMITER
-            )
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
             if not is_valid:
                 logger.warning("GroupMatcher: Control file parse issue — %s", error)
                 self.qa_log.log(
@@ -402,13 +340,7 @@ class GroupMatcher:
             group_def.student_ids = ids
 
             if not ids:
-<<<<<<< HEAD
                 logger.warning("GroupMatcher: Group file '%s' yielded no valid IDs.", filename)
-=======
-                logger.warning(
-                    "GroupMatcher: Group file '%s' yielded no valid IDs.", filename
-                )
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                 self.qa_log.log(
                     "EMPTY_GROUP_FILE",
                     detail=f"No valid Student IDs found in group file: {filename}",
@@ -442,19 +374,10 @@ class GroupMatcher:
                 dtype=str,
                 keep_default_na=False,
                 engine="openpyxl",
-<<<<<<< HEAD
                 header=None,  # Always read without header assumption
             )
         except Exception as exc:
             logger.error("GroupMatcher: Cannot read group file '%s': %s", file_path.name, exc)
-=======
-                header=None,     # Always read without header assumption
-            )
-        except Exception as exc:
-            logger.error(
-                "GroupMatcher: Cannot read group file '%s': %s", file_path.name, exc
-            )
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
             self.qa_log.log(
                 "FILE_LOAD_ERROR",
                 detail=f"Cannot read group file: {exc}",
@@ -471,7 +394,6 @@ class GroupMatcher:
         valid_ids: set = set()
         for raw in raw_ids:
             from utils.normalization import normalize_student_id
-<<<<<<< HEAD
 
             normalized = normalize_student_id(raw)
 
@@ -486,13 +408,6 @@ class GroupMatcher:
                 "nan",
                 "",
             }:
-=======
-            normalized = normalize_student_id(raw)
-
-            # Skip header-like values
-            if normalized.lower() in {"student id", "studentid", "id", "z number",
-                                       "znumber", "student_id", "nan", ""}:
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                 continue
 
             is_valid, reason = validate_student_id(normalized)
@@ -533,20 +448,11 @@ class GroupMatcher:
                     "MULTI_GROUP_STUDENT",
                     student_id=sid,
                     detail=f"ID found in multiple group files: {', '.join(group_names)}. "
-<<<<<<< HEAD
                     f"Will be assigned to first matching group only.",
                     source_file="multiple",
                 )
                 logger.warning(
                     "GroupMatcher: Student ID '%s' found in groups: %s. " "First-match wins.",
-=======
-                           f"Will be assigned to first matching group only.",
-                    source_file="multiple",
-                )
-                logger.warning(
-                    "GroupMatcher: Student ID '%s' found in groups: %s. "
-                    "First-match wins.",
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                     sid,
                     group_names,
                 )
@@ -555,22 +461,12 @@ class GroupMatcher:
     # Unmatched splitting
     # ------------------------------------------------------------------
 
-<<<<<<< HEAD
     def _split_unmatched(self, remaining: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Split unmatched students into Risk_1_2 and Risk_3_Plus."""
         if remaining.empty:
             empty = pd.DataFrame(
                 columns=list(remaining.columns)
                 + ["Matched Group", "Match Source", "Processing Notes"]
-=======
-    def _split_unmatched(
-        self, remaining: pd.DataFrame
-    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """Split unmatched students into Risk_1_2 and Risk_3_Plus."""
-        if remaining.empty:
-            empty = pd.DataFrame(
-                columns=list(remaining.columns) + ["Matched Group", "Match Source", "Processing Notes"]
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
             )
             return empty.copy(), empty.copy()
 
@@ -596,14 +492,7 @@ class GroupMatcher:
     def _sort_students(df: pd.DataFrame) -> pd.DataFrame:
         """Sort students per spec: Risk Course Count desc, Absences desc, Name asc."""
         sort_cols = [c for c in SORT_COLUMNS if c in df.columns]
-<<<<<<< HEAD
         ascending = [SORT_ASCENDING[SORT_COLUMNS.index(c)] for c in sort_cols]
-=======
-        ascending = [
-            SORT_ASCENDING[SORT_COLUMNS.index(c)]
-            for c in sort_cols
-        ]
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         if not sort_cols:
             return df
         return df.sort_values(sort_cols, ascending=ascending).reset_index(drop=True)

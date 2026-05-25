@@ -47,19 +47,11 @@ logger = logging.getLogger("intervention_sorter")
 
 @dataclass
 class MidtermPipelineInputs:
-<<<<<<< HEAD
     midterm_file: Path
     contact_report: Path
     control_file: Path
     group_dir: Path
     output_dir: Path
-=======
-    midterm_file:   Path
-    contact_report: Path
-    control_file:   Path
-    group_dir:      Path
-    output_dir:     Path
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
     exclude_previous: bool = False
     skip_groups: set = None  # Group tab names to skip (students fall to buckets)
     season: str = ""
@@ -71,11 +63,7 @@ class MidtermPipelineInputs:
 class MidtermPipelineResult:
     success: bool
     message: str = ""
-<<<<<<< HEAD
     errors: List[str] = field(default_factory=list)
-=======
-    errors:  List[str] = field(default_factory=list)
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
     metrics: Dict[str, Any] = field(default_factory=dict)
     output_path: Optional[Path] = None
 
@@ -118,11 +106,7 @@ class MidtermPipelineController:
                 return MidtermPipelineResult(
                     success=False,
                     message="No at-risk students found. Check that MIDTERMGRADE contains "
-<<<<<<< HEAD
                     "grades of C- or lower (C-, D+, D, D-, F).",
-=======
-                            "grades of C- or lower (C-, D+, D, D-, F).",
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                     errors=["No at-risk rows after filtering."],
                 )
 
@@ -143,11 +127,7 @@ class MidtermPipelineController:
                     return MidtermPipelineResult(
                         success=False,
                         message="All at-risk students have already been assigned. "
-<<<<<<< HEAD
                         "Delete assigned_students.txt to start a new campaign.",
-=======
-                                "Delete assigned_students.txt to start a new campaign.",
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                         errors=["No new students after exclusion."],
                     )
 
@@ -157,11 +137,7 @@ class MidtermPipelineController:
             contact_proc.load(inputs.contact_report)
             students_df = contact_proc.merge(students_df)
             self._metrics["contact_matches"] = contact_proc.contact_match_count
-<<<<<<< HEAD
             self._metrics["contact_misses"] = contact_proc.contact_miss_count
-=======
-            self._metrics["contact_misses"]  = contact_proc.contact_miss_count
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
             # Step 6 — Group matching
             self._update("Matching students to groups...")
@@ -173,18 +149,13 @@ class MidtermPipelineController:
                 )
             else:
                 matcher.load_control_file(
-<<<<<<< HEAD
                     inputs.control_file,
                     inputs.group_dir,
-=======
-                    inputs.control_file, inputs.group_dir,
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                     skip_groups=inputs.skip_groups,
                 )
             group_data = matcher.match(students_df)
             group_order = [g.safe_tab_name for g in matcher.group_definitions]
 
-<<<<<<< HEAD
             total_assigned = sum(len(group_data.get(tab, pd.DataFrame())) for tab in group_order)
             total_unmatched = len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame())) + len(
                 group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame())
@@ -195,25 +166,11 @@ class MidtermPipelineController:
             self._metrics["total_risk_3_plus"] = len(
                 group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame())
             )
-=======
-            total_assigned = sum(
-                len(group_data.get(tab, pd.DataFrame())) for tab in group_order
-            )
-            total_unmatched = (
-                len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame())) +
-                len(group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame()))
-            )
-            self._metrics["total_assigned"]   = total_assigned
-            self._metrics["total_unmatched"]  = total_unmatched
-            self._metrics["total_risk_1_2"]   = len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame()))
-            self._metrics["total_risk_3_plus"] = len(group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame()))
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
             # Step 7 — Export
             self._update("Writing output workbook...")
             output_path = self._resolve_output_path(inputs.output_dir)
             duration = (datetime.now() - self._start_time).total_seconds()
-<<<<<<< HEAD
             self._metrics.update(
                 {
                     "processing_timestamp": self._start_time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -226,18 +183,6 @@ class MidtermPipelineController:
                 "Midterm Grade File": inputs.midterm_file.name,
                 "Contact Report": inputs.contact_report.name,
                 "Control File": inputs.control_file.name,
-=======
-            self._metrics.update({
-                "processing_timestamp": self._start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                "execution_duration":   duration,
-                "output_filename":      output_path.name,
-            })
-
-            source_files = {
-                "Midterm Grade File":    inputs.midterm_file.name,
-                "Contact Report":        inputs.contact_report.name,
-                "Control File":         inputs.control_file.name,
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                 "Group Files Directory": str(inputs.group_dir),
             }
 
@@ -317,11 +262,7 @@ class MidtermPipelineController:
     def _validate_inputs(self, inputs: MidtermPipelineInputs) -> ValidationResult:
         result = ValidationResult(is_valid=True)
         required = [
-<<<<<<< HEAD
             ("Midterm File", inputs.midterm_file),
-=======
-            ("Midterm File",   inputs.midterm_file),
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
             ("Contact Report", inputs.contact_report),
         ]
         if not inputs.semester_groups:
@@ -336,12 +277,8 @@ class MidtermPipelineController:
 
     def _resolve_output_path(self, output_dir: Path) -> Path:
         from utils.config import get_semester_output_dir
-<<<<<<< HEAD
 
         season = getattr(self, "_current_season", "")
-=======
-        season = getattr(self, '_current_season', '')
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         semester_dir = get_semester_output_dir(season)
         timestamp = datetime.now().strftime(LOG_DATE_FORMAT)
         filename = MIDTERM_OUTPUT_FILENAME_PATTERN.format(timestamp=timestamp)
@@ -374,17 +311,11 @@ class MidtermPipelineController:
         existing = set()
         if ASSIGNED_STUDENTS_PATH.exists():
             try:
-<<<<<<< HEAD
                 existing = {
                     l.strip().upper()
                     for l in ASSIGNED_STUDENTS_PATH.read_text(encoding="utf-8").splitlines()
                     if l.strip()
                 }
-=======
-                existing = {l.strip().upper() for l in
-                            ASSIGNED_STUDENTS_PATH.read_text(encoding="utf-8").splitlines()
-                            if l.strip()}
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
             except Exception:
                 pass
         truly_new = [sid for sid in new_ids if sid.upper() not in existing]
@@ -392,13 +323,9 @@ class MidtermPipelineController:
             with open(ASSIGNED_STUDENTS_PATH, "a", encoding="utf-8") as f:
                 for sid in truly_new:
                     f.write(sid + "\n")
-<<<<<<< HEAD
             logger.info(
                 "Midterm Pipeline: Appended %d IDs to assigned_students.txt", len(truly_new)
             )
-=======
-            logger.info("Midterm Pipeline: Appended %d IDs to assigned_students.txt", len(truly_new))
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
     def _update(self, message: str) -> None:
         logger.info("Midterm Pipeline: %s", message)
@@ -420,10 +347,7 @@ class MidtermExporter(Exporter):
     def export(self, group_data, group_order, qa_log, metrics, output_path, source_files):
         # Temporarily swap output columns
         import utils.config as cfg
-<<<<<<< HEAD
 
-=======
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         original = cfg.OUTPUT_COLUMNS
         cfg.OUTPUT_COLUMNS = MIDTERM_OUTPUT_COLUMNS
         try:

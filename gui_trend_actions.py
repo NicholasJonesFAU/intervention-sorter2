@@ -65,7 +65,6 @@ def run_trend_report(app):
                 "info",
             )
             if pr1_path:
-<<<<<<< HEAD
                 app.after(
                     0,
                     app._trend_log_write,
@@ -86,13 +85,6 @@ def run_trend_report(app):
                     f"{pr2_label}: {overall['pr2_count']:,} students",
                     "info",
                 )
-=======
-                app.after(0, app._trend_log_write, f"{pr1_label}: {overall['pr1_count']:,} students", "info")
-            if mid_path:
-                app.after(0, app._trend_log_write, f"{mid_label}: {overall['mid_count']:,} students", "info")
-            if pr2_path:
-                app.after(0, app._trend_log_write, f"{pr2_label}: {overall['pr2_count']:,} students", "info")
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
             app.after(0, app._trend_log_write, "Building report with charts...", "step")
             exporter = TrendExporter()

@@ -18,7 +18,6 @@ def load_progress_demo_files(app) -> None:
     repo_root = Path(__file__).resolve().parent
     sample_dir = repo_root / "sample_data"
     group_dir = sample_dir / "group_files"
-<<<<<<< HEAD
     output_dir = sample_dir / "demo_output"
 
     # Accept either CSV or xlsx for the progress report
@@ -29,13 +28,6 @@ def load_progress_demo_files(app) -> None:
     demo_paths = {
         "Progress Report":    progress_file,
         "Contact Report":     sample_dir / "contact_report_sample.xlsx",
-=======
-    output_dir = sample_dir / "demo_outputs"
-
-    demo_paths = {
-        "Progress Report": sample_dir / "progress_report_sample.csv",
-        "Contact Report": sample_dir / "contact_report_sample.xlsx",
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         "Group Control File": sample_dir / "group_control.txt",
         "Group Files Folder": group_dir,
     }
@@ -62,14 +54,10 @@ def load_progress_demo_files(app) -> None:
         app._exclude_var.set(False)
 
     if hasattr(app, "_log"):
-<<<<<<< HEAD
         app._log(
             "✅ Demo files loaded. Click 'Run Full Processing' to test the sample workflow.",
             "success",
         )
-=======
-        app._log("✅ Demo files loaded. Click 'Run Full Processing' to test the sample workflow.", "success")
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
     messagebox.showinfo(
         "Demo Files Loaded",

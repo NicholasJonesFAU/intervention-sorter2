@@ -14,13 +14,9 @@ from gui_widgets import RoundedButton
 from processors.semester_manager import SemesterManager
 
 
-<<<<<<< HEAD
 def show_group_selection_dialog(
     app, control_path: str, group_dir: str, checkpoint_name: str
 ) -> tuple:
-=======
-def show_group_selection_dialog(app, control_path: str, group_dir: str, checkpoint_name: str) -> tuple:
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
     """
     Show a checklist of groups before a run.
 
@@ -207,13 +203,9 @@ def ensure_season_set(app) -> bool:
         return True
 
     season = app._campaign_season_var.get().strip()
-<<<<<<< HEAD
     checkpoint = (
         app._checkpoint_type_var.get().strip() if hasattr(app, "_checkpoint_type_var") else ""
     )
-=======
-    checkpoint = app._checkpoint_type_var.get().strip() if hasattr(app, "_checkpoint_type_var") else ""
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
     if season and checkpoint:
         return True
@@ -351,15 +343,11 @@ def show_new_semester_dialog(app, on_startup: bool = False):
     dialog.transient(app)
     dialog.grab_set()
 
-<<<<<<< HEAD
     message = (
         "Welcome! Let's set up your semester campaign."
         if on_startup
         else "Create a new semester campaign."
     )
-=======
-    message = "Welcome! Let's set up your semester campaign." if on_startup else "Create a new semester campaign."
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
     tk.Label(
         dialog,

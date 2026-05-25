@@ -50,10 +50,7 @@ logger = logging.getLogger("intervention_sorter")
 @dataclass
 class PipelineInputs:
     """All file paths required to run the pipeline."""
-<<<<<<< HEAD
 
-=======
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
     progress_report: Path
     contact_report: Path
     control_file: Path
@@ -65,17 +62,11 @@ class PipelineInputs:
     checkpoint_type: str = "Progress Report"
     semester_groups: list = None  # [{name, file_path}] — replaces control_file + group_dir when set
 
-<<<<<<< HEAD
 
 @dataclass
 class PipelineResult:
     """Encapsulates the outcome of a pipeline run."""
 
-=======
-@dataclass
-class PipelineResult:
-    """Encapsulates the outcome of a pipeline run."""
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
     success: bool
     message: str = ""
     errors: List[str] = field(default_factory=list)
@@ -141,11 +132,7 @@ class PipelineController:
                 return PipelineResult(
                     success=False,
                     message="No at-risk students found in the progress report. "
-<<<<<<< HEAD
                     "Please check that the 'At-Risk' column contains TRUE values.",
-=======
-                            "Please check that the 'At-Risk' column contains TRUE values.",
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                     errors=["No at-risk rows after filtering."],
                 )
 
@@ -166,11 +153,7 @@ class PipelineController:
                     return PipelineResult(
                         success=False,
                         message="All at-risk students have already been assigned in a previous run. "
-<<<<<<< HEAD
                         "Delete assigned_students.txt in the output folder to start a new campaign.",
-=======
-                                "Delete assigned_students.txt in the output folder to start a new campaign.",
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                         errors=["No new students remaining after exclusion."],
                     )
 
@@ -192,49 +175,26 @@ class PipelineController:
                 )
             else:
                 matcher.load_control_file(
-<<<<<<< HEAD
                     inputs.control_file,
                     inputs.group_dir,
-=======
-                    inputs.control_file, inputs.group_dir,
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                     skip_groups=inputs.skip_groups,
                 )
             group_data = matcher.match(students_df)
 
             # Collect ordered group tab names (excluding unmatched buckets)
-<<<<<<< HEAD
             group_order = [g.safe_tab_name for g in matcher.group_definitions]
 
             # Calculate assignment metrics
             total_assigned = sum(len(group_data.get(tab, pd.DataFrame())) for tab in group_order)
             total_unmatched = len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame())) + len(
                 group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame())
-=======
-            group_order = [
-                g.safe_tab_name for g in matcher.group_definitions
-            ]
-
-            # Calculate assignment metrics
-            total_assigned = sum(
-                len(group_data.get(tab, pd.DataFrame()))
-                for tab in group_order
-            )
-            total_unmatched = (
-                len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame()))
-                + len(group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame()))
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
             )
             self._metrics["total_assigned"] = total_assigned
             self._metrics["total_unmatched"] = total_unmatched
             self._metrics["total_risk_1_2"] = len(group_data.get(UNMATCHED_LOW_TAB, pd.DataFrame()))
-<<<<<<< HEAD
             self._metrics["total_risk_3_plus"] = len(
                 group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame())
             )
-=======
-            self._metrics["total_risk_3_plus"] = len(group_data.get(UNMATCHED_HIGH_TAB, pd.DataFrame()))
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
             logger.info(
                 "Pipeline: Assigned: %d | Unmatched: %d",
@@ -253,11 +213,7 @@ class PipelineController:
                 self._qa_log.log(
                     "INFO",
                     detail=f"Integrity check: input={len(students_df)}, output={total_out}. "
-<<<<<<< HEAD
                     f"Discrepancy detected.",
-=======
-                           f"Discrepancy detected.",
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                     source_file="pipeline",
                 )
 
@@ -371,7 +327,6 @@ class PipelineController:
             try:
                 grade_proc = GradeProcessor(self._qa_log)
                 at_risk_df, grade_metrics = grade_proc.load(inputs.progress_report)
-<<<<<<< HEAD
                 preview_info.append(
                     f"Total input rows: {grade_metrics.get('total_input_rows', 0):,}"
                 )
@@ -379,11 +334,6 @@ class PipelineController:
                 preview_info.append(
                     f"Duplicate course rows: {grade_metrics.get('duplicate_course_rows_removed', 0):,}"
                 )
-=======
-                preview_info.append(f"Total input rows: {grade_metrics.get('total_input_rows', 0):,}")
-                preview_info.append(f"At-risk rows: {grade_metrics.get('total_at_risk_rows', 0):,}")
-                preview_info.append(f"Duplicate course rows: {grade_metrics.get('duplicate_course_rows_removed', 0):,}")
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
                 aggregator = Aggregator()
                 students_df = aggregator.aggregate(at_risk_df)
@@ -394,14 +344,9 @@ class PipelineController:
             # Try loading group matcher
             try:
                 matcher = GroupMatcher(self._qa_log)
-<<<<<<< HEAD
                 matcher.load_control_file(
                     inputs.control_file, inputs.group_dir, skip_groups=inputs.skip_groups
                 )
-=======
-                matcher.load_control_file(inputs.control_file, inputs.group_dir,
-                                              skip_groups=inputs.skip_groups)
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
                 for g in matcher.group_definitions:
                     preview_info.append(f"Group '{g.tab_name}': {len(g.student_ids):,} IDs loaded")
             except Exception as exc:
@@ -443,11 +388,7 @@ class PipelineController:
 
         required = [
             ("Progress Report", inputs.progress_report),
-<<<<<<< HEAD
             ("Contact Report", inputs.contact_report),
-=======
-            ("Contact Report",  inputs.contact_report),
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         ]
         if not inputs.semester_groups:
             required.append(("Control File", inputs.control_file))
@@ -457,13 +398,7 @@ class PipelineController:
             result.merge(validate_file_readable(path, label))
 
         if not inputs.semester_groups and not inputs.group_dir.exists():
-<<<<<<< HEAD
             result.add_error(f"Group files directory not found: {inputs.group_dir}")
-=======
-            result.add_error(
-                f"Group files directory not found: {inputs.group_dir}"
-            )
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
         result.merge(validate_output_path(inputs.output_dir))
 
@@ -475,10 +410,7 @@ class PipelineController:
         Returns (filtered_df, excluded_count).
         """
         from utils.config import ASSIGNED_STUDENTS_PATH
-<<<<<<< HEAD
 
-=======
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         if not ASSIGNED_STUDENTS_PATH.exists():
             logger.info("Pipeline: No assigned_students.txt found — no exclusions applied.")
             return students_df, 0
@@ -533,22 +465,14 @@ class PipelineController:
                     f.write(sid + "\n")
             logger.info(
                 "Pipeline: Appended %d new IDs to assigned_students.txt (total: %d)",
-<<<<<<< HEAD
                 len(truly_new),
                 len(existing) + len(truly_new),
-=======
-                len(truly_new), len(existing) + len(truly_new),
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
             )
 
     def _resolve_output_path(self, output_dir: Path) -> Path:
         from utils.config import get_semester_output_dir
-<<<<<<< HEAD
 
         season = getattr(self, "_current_season", "")
-=======
-        season = getattr(self, '_current_season', '')
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         semester_dir = get_semester_output_dir(season)
         timestamp = datetime.now().strftime(LOG_DATE_FORMAT)
         filename = OUTPUT_FILENAME_PATTERN.format(timestamp=timestamp)

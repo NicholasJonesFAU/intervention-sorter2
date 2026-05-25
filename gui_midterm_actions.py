@@ -48,7 +48,6 @@ def run_midterm_sort(app):
         return
 
     season = app._campaign_season_var.get().strip() if hasattr(app, "_campaign_season_var") else ""
-<<<<<<< HEAD
     control_file = (
         Path(app._midterm_control_picker.path) if app._midterm_control_picker.path else Path(".")
     )
@@ -57,10 +56,6 @@ def run_midterm_sort(app):
         if app._midterm_group_dir_picker.path
         else Path(".")
     )
-=======
-    control_file = Path(app._midterm_control_picker.path) if app._midterm_control_picker.path else Path(".")
-    group_dir = Path(app._midterm_group_dir_picker.path) if app._midterm_group_dir_picker.path else Path(".")
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
     inputs = MidtermPipelineInputs(
         midterm_file=Path(always_required["Midterm Grade File"]),
@@ -118,14 +113,10 @@ def handle_midterm_complete(app, result):
             app._refresh_campaign_tab()
         messagebox.showinfo(
             "Midterm Sort Complete",
-<<<<<<< HEAD
             "✅ Midterm sort completed!\n\n"
             + result.message
             + "\n\nOutput:\n"
             + str(result.output_path),
-=======
-            "✅ Midterm sort completed!\n\n" + result.message + "\n\nOutput:\n" + str(result.output_path),
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         )
     else:
         app._midterm_log_write("\n❌ " + result.message, "error")
@@ -133,13 +124,9 @@ def handle_midterm_complete(app, result):
             app._midterm_log_write("  " + e[:300], "error")
         messagebox.showerror(
             "Midterm Sort Failed",
-<<<<<<< HEAD
             "❌ Processing failed:\n\n"
             + result.message
             + ("\n\n" + result.errors[0][:400] if result.errors else ""),
-=======
-            "❌ Processing failed:\n\n" + result.message + ("\n\n" + result.errors[0][:400] if result.errors else ""),
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         )
 
 

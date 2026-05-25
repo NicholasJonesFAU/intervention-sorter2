@@ -39,7 +39,6 @@ logger = logging.getLogger("intervention_sorter")
 @dataclass
 class CheckpointRun:
     """One checkpoint within a semester (PR1, Midterm, or PR2)."""
-<<<<<<< HEAD
 
     name: str
     status: str = CHECKPOINT_STATUS_NOT_STARTED
@@ -50,36 +49,17 @@ class CheckpointRun:
     output_file: str = ""
     last_run: str = ""
     selected_groups: list = None  # None = all groups; list = selected subset
-=======
-    name:               str
-    status:             str   = CHECKPOINT_STATUS_NOT_STARTED
-    run_count:          int   = 0
-    students_processed: int   = 0
-    students_assigned:  int   = 0
-    students_unmatched: int   = 0
-    output_file:        str   = ""
-    last_run:           str   = ""
-    selected_groups:    list  = None  # None = all groups; list = selected subset
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
     def __post_init__(self):
         if self.selected_groups is None:
             self.selected_groups = []
 
 
-<<<<<<< HEAD
 @dataclass
 class SemesterGroup:
     """One group entry configured for a semester."""
 
     name: str
-=======
-
-@dataclass
-class SemesterGroup:
-    """One group entry configured for a semester."""
-    name:      str
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
     file_path: str = ""
 
     def to_dict(self) -> dict:
@@ -93,7 +73,6 @@ class SemesterGroup:
 @dataclass
 class Semester:
     """A full semester campaign record."""
-<<<<<<< HEAD
 
     semester_id: str
     name: str
@@ -113,36 +92,11 @@ class Semester:
 
     # Checkpoint records — keyed by checkpoint name
     checkpoints: Dict[str, Any] = field(default_factory=dict)
-=======
-    semester_id:    str
-    name:           str
-    status:         str   = SEMESTER_STATUS_ACTIVE
-    created:        str   = ""
-    completed:      str   = ""
-    master_report:  str   = ""
-
-    # Saved file paths — set on first run, reused for rest of semester
-    contact_report: str   = ""
-    control_file:   str   = ""
-    group_folder:   str   = ""
-
-    # Semester group definitions — priority-ordered [{name, file_path}]
-    # When present, replaces control file + group folder for all runs
-    groups:         list  = field(default_factory=list)
-
-    # Checkpoint records — keyed by checkpoint name
-    checkpoints:    Dict[str, Any] = field(default_factory=dict)
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
     def __post_init__(self):
         if not self.checkpoints:
             self.checkpoints = {
-<<<<<<< HEAD
                 name: asdict(CheckpointRun(name=name)) for name in SEMESTER_CHECKPOINTS
-=======
-                name: asdict(CheckpointRun(name=name))
-                for name in SEMESTER_CHECKPOINTS
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
             }
         if not self.created:
             self.created = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -214,13 +168,8 @@ class SemesterManager:
     def save_file_paths(
         self,
         contact_report: str = "",
-<<<<<<< HEAD
         control_file: str = "",
         group_folder: str = "",
-=======
-        control_file:   str = "",
-        group_folder:   str = "",
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
     ) -> None:
         """Save file paths to the active semester (called on first run)."""
         sem = self.active_semester()
@@ -234,10 +183,6 @@ class SemesterManager:
             sem.group_folder = group_folder
         self._save()
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
     # ------------------------------------------------------------------
     # Group configuration
     # ------------------------------------------------------------------
@@ -253,21 +198,12 @@ class SemesterManager:
         sem = self.active_semester()
         if not sem:
             return
-<<<<<<< HEAD
         sem.groups = [{"name": g["name"], "file_path": g["file_path"]} for g in groups]
         self._save()
         logger.info(
             "SemesterManager: Saved %d groups for semester '%s'",
             len(sem.groups),
             sem.name,
-=======
-        sem.groups = [{"name": g["name"], "file_path": g["file_path"]}
-                      for g in groups]
-        self._save()
-        logger.info(
-            "SemesterManager: Saved %d groups for semester '%s'",
-            len(sem.groups), sem.name,
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         )
 
     def get_groups(self) -> list:
@@ -283,12 +219,7 @@ class SemesterManager:
         """
         for sem in reversed(self._semesters):
             if sem.status != SEMESTER_STATUS_ACTIVE and sem.groups:
-<<<<<<< HEAD
                 return [{"name": g["name"], "file_path": ""} for g in sem.groups]
-=======
-                return [{"name": g["name"], "file_path": ""}
-                        for g in sem.groups]
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         return []
 
     def save_group_selection(
@@ -315,19 +246,11 @@ class SemesterManager:
 
     def record_run(
         self,
-<<<<<<< HEAD
         checkpoint_name: str,
         students_processed: int,
         students_assigned: int,
         students_unmatched: int,
         output_file: str = "",
-=======
-        checkpoint_name:    str,
-        students_processed: int,
-        students_assigned:  int,
-        students_unmatched: int,
-        output_file:        str = "",
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
     ) -> None:
         """Record a completed run for the active semester's checkpoint."""
         sem = self.active_semester()
@@ -335,7 +258,6 @@ class SemesterManager:
             return
 
         cp = sem.get_checkpoint(checkpoint_name)
-<<<<<<< HEAD
         cp.run_count += 1
         cp.students_processed = students_processed
         cp.students_assigned = students_assigned
@@ -343,30 +265,15 @@ class SemesterManager:
         cp.output_file = output_file
         cp.last_run = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cp.status = CHECKPOINT_STATUS_IN_PROGRESS
-=======
-        cp.run_count          += 1
-        cp.students_processed  = students_processed
-        cp.students_assigned   = students_assigned
-        cp.students_unmatched  = students_unmatched
-        cp.output_file         = output_file
-        cp.last_run            = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        cp.status              = CHECKPOINT_STATUS_IN_PROGRESS
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         sem.set_checkpoint(cp)
         self._save()
 
         logger.info(
-<<<<<<< HEAD
             "SemesterManager: Recorded run — '%s' / '%s' | " "Processed: %d | Assigned: %d",
             sem.name,
             checkpoint_name,
             students_processed,
             students_assigned,
-=======
-            "SemesterManager: Recorded run — '%s' / '%s' | "
-            "Processed: %d | Assigned: %d",
-            sem.name, checkpoint_name, students_processed, students_assigned,
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         )
 
     def mark_checkpoint_complete(self, checkpoint_name: str) -> None:
@@ -390,7 +297,6 @@ class SemesterManager:
             return 0
 
         cp = sem.get_checkpoint(checkpoint_name)
-<<<<<<< HEAD
         cp.status = CHECKPOINT_STATUS_NOT_STARTED
         cp.run_count = 0
         cp.students_processed = 0
@@ -398,27 +304,14 @@ class SemesterManager:
         cp.students_unmatched = 0
         cp.output_file = ""
         cp.last_run = ""
-=======
-        cp.status             = CHECKPOINT_STATUS_NOT_STARTED
-        cp.run_count          = 0
-        cp.students_processed = 0
-        cp.students_assigned  = 0
-        cp.students_unmatched = 0
-        cp.output_file        = ""
-        cp.last_run           = ""
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         sem.set_checkpoint(cp)
         self._save()
 
         cleared = self._clear_assigned_students()
         logger.info(
             "SemesterManager: Reset checkpoint '%s', cleared %d IDs",
-<<<<<<< HEAD
             checkpoint_name,
             cleared,
-=======
-            checkpoint_name, cleared,
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         )
         return cleared
 
@@ -431,15 +324,9 @@ class SemesterManager:
         if not sem:
             raise ValueError("No active semester to complete.")
 
-<<<<<<< HEAD
         sem.status = SEMESTER_STATUS_COMPLETE
         sem.completed = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         sem.master_report = master_report_path
-=======
-        sem.status         = SEMESTER_STATUS_COMPLETE
-        sem.completed      = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        sem.master_report  = master_report_path
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         self._save()
 
         self._clear_assigned_students()
@@ -455,11 +342,7 @@ class SemesterManager:
         sem = self.active_semester()
         if not sem:
             return 0
-<<<<<<< HEAD
         sem.status = "Abandoned"
-=======
-        sem.status    = "Abandoned"
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         sem.completed = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self._save()
         cleared = self._clear_assigned_students()
@@ -468,12 +351,7 @@ class SemesterManager:
 
     def history(self) -> List[Semester]:
         """Return all non-active semesters in reverse chronological order."""
-<<<<<<< HEAD
         return [s for s in reversed(self._semesters) if s.status != SEMESTER_STATUS_ACTIVE]
-=======
-        return [s for s in reversed(self._semesters)
-                if s.status != SEMESTER_STATUS_ACTIVE]
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
 
     def all_semesters(self) -> List[Semester]:
         return list(reversed(self._semesters))
@@ -489,13 +367,7 @@ class SemesterManager:
         try:
             data = json.loads(SEMESTERS_PATH.read_text(encoding="utf-8"))
             self._semesters = [Semester(**s) for s in data.get("semesters", [])]
-<<<<<<< HEAD
             logger.info("SemesterManager: Loaded %d semesters.", len(self._semesters))
-=======
-            logger.info(
-                "SemesterManager: Loaded %d semesters.", len(self._semesters)
-            )
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         except Exception as exc:
             logger.warning("SemesterManager: Could not load semesters.json: %s", exc)
             self._semesters = []
@@ -504,13 +376,7 @@ class SemesterManager:
         SEMESTERS_PATH.parent.mkdir(parents=True, exist_ok=True)
         data = {"semesters": [asdict(s) for s in self._semesters]}
         try:
-<<<<<<< HEAD
             SEMESTERS_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
-=======
-            SEMESTERS_PATH.write_text(
-                json.dumps(data, indent=2), encoding="utf-8"
-            )
->>>>>>> 768eadaae6f5434fe8caf05c563774785e465479
         except Exception as exc:
             logger.error("SemesterManager: Could not save semesters.json: %s", exc)
 
