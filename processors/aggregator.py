@@ -43,21 +43,31 @@ class Aggregator:
         names = group["Student Name"].replace("", pd.NA).dropna()
         student_name = names.iloc[0] if not names.empty else ""
 
-        # Three parallel newline-delimited lists — one entry per course row
+        # Four parallel newline-delimited lists — one entry per course row
         course_numbers = []
         course_names   = []
         grades         = []
+        absences       = []
 
         for _, row in group.iterrows():
             course_numbers.append(str(row.get("Course Number", "")).strip())
             course_names.append(str(row.get("Course", "")).strip())
             grades.append(str(row.get("Current Grade", "")).strip())
+            # Absence count per course — blank if not available
+            raw_abs = row.get("Absences", "")
+            if pd.isna(raw_abs) or str(raw_abs).strip() in ("", "nan"):
+                absences.append("")
+            else:
+                try:
+                    absences.append(str(int(float(raw_abs))))
+                except (ValueError, TypeError):
+                    absences.append(str(raw_abs).strip())
 
         risk_course_count = len(set(
             (cn or nm) for cn, nm in zip(course_numbers, course_names) if cn or nm
         ))
 
-        total_absences = group["Absences"].fillna(0.0).sum()
+        absences_str = delim.join(absences)
 
         alert_reasons = deduplicate_multiline_values(
             delim.join(str(v) for v in group["Alert Reasons"].fillna("") if str(v).strip()), delim
@@ -74,7 +84,7 @@ class Aggregator:
         return pd.Series({
             "Student Name":     student_name,
             "Risk Course Count": risk_course_count,
-            "Total Absences":   total_absences,
+            "Absences":         absences_str,
             "Course Numbers":   delim.join(course_numbers),
             "Courses":          delim.join(course_names),
             "Grades":           delim.join(grades),
@@ -85,6 +95,6 @@ class Aggregator:
     @staticmethod
     def _empty_output() -> pd.DataFrame:
         return pd.DataFrame(columns=[
-            "Student ID", "Student Name", "Risk Course Count", "Total Absences",
+            "Student ID", "Student Name", "Risk Course Count", "Absences",
             "Course Numbers", "Courses", "Grades", "Alert Reasons", "Comments",
         ])

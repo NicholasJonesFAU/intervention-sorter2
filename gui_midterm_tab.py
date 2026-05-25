@@ -103,6 +103,16 @@ def build_midterm_tab(app) -> None:
 
     RoundedButton(
         button_frame,
+        text="Pre-Run Check",
+        command=app._on_midterm_prerun_check,
+        **theme.BTN_DANGER,
+        font=theme.FONT_MAIN,
+        padx=14,
+        pady=9,
+    ).pack(side="left", padx=(0, 10))
+
+    RoundedButton(
+        button_frame,
         text="Clear",
         **theme.BTN_MUTED_STYLE,
         font=theme.FONT_MAIN,

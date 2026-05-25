@@ -14,6 +14,86 @@ from processors.midterm_pipeline_controller import MidtermPipelineController, Mi
 from processors.semester_manager import SemesterManager
 
 
+def on_midterm_prerun_check(app):
+    """Run pre-flight data quality checks on the midterm inputs."""
+    from processors.prerun_checker import PreRunChecker
+    import pandas as pd
+
+    semester_groups = SemesterManager().get_groups()
+    using_semester_groups = bool(semester_groups)
+
+    always_required = {
+        "Midterm Grade File": app._midterm_file_picker.path,
+        "Contact Report":     app._midterm_contact_picker.path,
+    }
+    if not using_semester_groups:
+        always_required["Group Control File"] = app._midterm_control_picker.path
+        always_required["Group Files Folder"] = app._midterm_group_dir_picker.path
+
+    missing = [k for k, v in always_required.items() if not v]
+    if missing:
+        messagebox.showerror(
+            "Missing Files",
+            "Please select files first:\n" + "\n".join(f"  • {m}" for m in missing),
+        )
+        return
+
+    app._midterm_log_write("=" * 55, "info")
+    app._midterm_log_write("PRE-RUN DATA QUALITY CHECK", "step")
+    app._midterm_log_write("=" * 55, "info")
+
+    def _worker():
+        checker = PreRunChecker()
+        all_results = []
+
+        app.after(0, app._midterm_log_write, "Checking midterm file...", "step")
+        all_results.extend(
+            checker.check_midterm_file(Path(always_required["Midterm Grade File"]))
+        )
+
+        app.after(0, app._midterm_log_write, "Checking contact report...", "step")
+        all_results.extend(
+            checker.check_contact_report(Path(always_required["Contact Report"]))
+        )
+
+        if using_semester_groups:
+            app.after(0, app._midterm_log_write, "Checking semester group files...", "step")
+            all_results.extend(checker.check_semester_groups(semester_groups))
+        else:
+            app.after(0, app._midterm_log_write, "Checking group files...", "step")
+            all_results.extend(
+                checker.check_group_files(
+                    Path(always_required["Group Control File"]),
+                    Path(always_required["Group Files Folder"]),
+                )
+            )
+
+        app.after(0, _show_results, all_results)
+
+    def _show_results(results):
+        from gui_progress_actions import show_precheck_results
+        show_precheck_results(app, results)
+        # Re-route log writes to midterm log box
+        errors   = [r for r in results if r.level == "error"]
+        warnings = [r for r in results if r.level == "warning"]
+        infos    = [r for r in results if r.level == "info"]
+        for r in infos:
+            app._midterm_log_write(f"  ℹ️  {r.message}", "info")
+        for r in warnings:
+            app._midterm_log_write(f"  ⚠️  {r.message}", "warning")
+        for r in errors:
+            app._midterm_log_write(f"  ❌  {r.message}", "error")
+        tag = "success" if not errors and not warnings else ("warning" if not errors else "error")
+        summary = (
+            "✅ Pre-run check passed!" if not errors and not warnings
+            else f"⚠️  {len(warnings)} warning(s)" if not errors
+            else f"❌ {len(errors)} error(s) found"
+        )
+        app._midterm_log_write(f"\n{summary}", tag)
+
+    threading.Thread(target=_worker, daemon=True).start()
+
+
 def run_midterm_sort(app):
     """Validate inputs, build MidtermPipelineInputs, and start the midterm pipeline."""
     if app._midterm_processing:

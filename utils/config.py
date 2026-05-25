@@ -107,7 +107,7 @@ OUTPUT_COLUMNS = [
     "Phone Number",
     "Email",
     "Risk Course Count",
-    "Total Absences",
+    "Absences",
     "Course Numbers",
     "Courses",
     "Grades",
@@ -145,8 +145,8 @@ CONTROL_FILE_DELIMITER = "|"
 # ---------------------------------------------------------------------------
 # Sorting specification
 # ---------------------------------------------------------------------------
-SORT_COLUMNS = ["Risk Course Count", "Total Absences", "Student Name"]
-SORT_ASCENDING = [False, False, True]
+SORT_COLUMNS = ["Risk Course Count", "Student Name"]
+SORT_ASCENDING = [False, True]
 
 # ---------------------------------------------------------------------------
 # Excel tab name constraints
@@ -196,7 +196,7 @@ COLUMN_WIDTH_OVERRIDES: Dict[str, int] = {
     "Phone Number": 16,
     "Email": 30,
     "Risk Course Count": 10,
-    "Total Absences": 10,
+    "Absences": 10,
     "Course Numbers": 16,
     "Courses": 48,
     "Grades": 8,

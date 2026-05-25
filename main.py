@@ -47,7 +47,7 @@ from gui_campaign_actions import (
 )
 from gui_settings_tab import build_settings_tab
 from gui_help_tab import build_help_tab
-from gui_midterm_actions import run_midterm_sort, handle_midterm_complete, handle_midterm_error
+from gui_midterm_actions import run_midterm_sort, handle_midterm_complete, handle_midterm_error, on_midterm_prerun_check
 from gui_progress_actions import (
     on_run_progress,
     on_validate_progress,
@@ -388,6 +388,9 @@ class InterventionSorterApp(tk.Tk):
 
     def _on_run_midterm(self):
         run_midterm_sort(self)
+
+    def _on_midterm_prerun_check(self):
+        on_midterm_prerun_check(self)
 
     def _on_midterm_complete(self, result):
         handle_midterm_complete(self, result)
